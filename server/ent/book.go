@@ -5,6 +5,7 @@ package ent
 import (
 	"fmt"
 	"lxdAssessmentServer/ent/book"
+	"lxdAssessmentServer/ent/collection"
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
@@ -21,6 +22,33 @@ type Book struct {
 	Description string `json:"description,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the BookQuery when eager-loading is set.
+	Edges            BookEdges `json:"edges"`
+	collection_books *int
+}
+
+// BookEdges holds the relations/edges for other nodes in the graph.
+type BookEdges struct {
+	// Collection holds the value of the collection edge.
+	Collection *Collection `json:"collection,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// CollectionOrErr returns the Collection value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e BookEdges) CollectionOrErr() (*Collection, error) {
+	if e.loadedTypes[0] {
+		if e.Collection == nil {
+			// The edge collection was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: collection.Label}
+		}
+		return e.Collection, nil
+	}
+	return nil, &NotLoadedError{edge: "collection"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -32,6 +60,8 @@ func (*Book) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = &sql.NullInt64{}
 		case book.FieldAuthor, book.FieldDescription, book.FieldTitle:
 			values[i] = &sql.NullString{}
+		case book.ForeignKeys[0]: // collection_books
+			values[i] = &sql.NullInt64{}
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Book", columns[i])
 		}
@@ -71,9 +101,21 @@ func (b *Book) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				b.Title = value.String
 			}
+		case book.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for edge-field collection_books", value)
+			} else if value.Valid {
+				b.collection_books = new(int)
+				*b.collection_books = int(value.Int64)
+			}
 		}
 	}
 	return nil
+}
+
+// QueryCollection queries the "collection" edge of the Book entity.
+func (b *Book) QueryCollection() *CollectionQuery {
+	return (&BookClient{config: b.config}).QueryCollection(b)
 }
 
 // Update returns a builder for updating this Book.

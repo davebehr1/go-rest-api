@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"lxdAssessmentServer/ent/book"
 	"lxdAssessmentServer/ent/collection"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -23,6 +24,21 @@ type CollectionCreate struct {
 func (cc *CollectionCreate) SetName(s string) *CollectionCreate {
 	cc.mutation.SetName(s)
 	return cc
+}
+
+// AddBookIDs adds the "books" edge to the Book entity by IDs.
+func (cc *CollectionCreate) AddBookIDs(ids ...int) *CollectionCreate {
+	cc.mutation.AddBookIDs(ids...)
+	return cc
+}
+
+// AddBooks adds the "books" edges to the Book entity.
+func (cc *CollectionCreate) AddBooks(b ...*Book) *CollectionCreate {
+	ids := make([]int, len(b))
+	for i := range b {
+		ids[i] = b[i].ID
+	}
+	return cc.AddBookIDs(ids...)
 }
 
 // Mutation returns the CollectionMutation object of the builder.
@@ -113,6 +129,25 @@ func (cc *CollectionCreate) createSpec() (*Collection, *sqlgraph.CreateSpec) {
 			Column: collection.FieldName,
 		})
 		_node.Name = value
+	}
+	if nodes := cc.mutation.BooksIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   collection.BooksTable,
+			Columns: []string{collection.BooksColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: book.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

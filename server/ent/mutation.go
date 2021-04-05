@@ -29,16 +29,18 @@ const (
 // BookMutation represents an operation that mutates the Book nodes in the graph.
 type BookMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *int
-	author        *string
-	description   *string
-	title         *string
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Book, error)
-	predicates    []predicate.Book
+	op                Op
+	typ               string
+	id                *int
+	author            *string
+	description       *string
+	title             *string
+	clearedFields     map[string]struct{}
+	collection        *int
+	clearedcollection bool
+	done              bool
+	oldValue          func(context.Context) (*Book, error)
+	predicates        []predicate.Book
 }
 
 var _ ent.Mutation = (*BookMutation)(nil)
@@ -228,6 +230,45 @@ func (m *BookMutation) ResetTitle() {
 	m.title = nil
 }
 
+// SetCollectionID sets the "collection" edge to the Collection entity by id.
+func (m *BookMutation) SetCollectionID(id int) {
+	m.collection = &id
+}
+
+// ClearCollection clears the "collection" edge to the Collection entity.
+func (m *BookMutation) ClearCollection() {
+	m.clearedcollection = true
+}
+
+// CollectionCleared returns if the "collection" edge to the Collection entity was cleared.
+func (m *BookMutation) CollectionCleared() bool {
+	return m.clearedcollection
+}
+
+// CollectionID returns the "collection" edge ID in the mutation.
+func (m *BookMutation) CollectionID() (id int, exists bool) {
+	if m.collection != nil {
+		return *m.collection, true
+	}
+	return
+}
+
+// CollectionIDs returns the "collection" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// CollectionID instead. It exists only for internal usage by the builders.
+func (m *BookMutation) CollectionIDs() (ids []int) {
+	if id := m.collection; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetCollection resets all changes to the "collection" edge.
+func (m *BookMutation) ResetCollection() {
+	m.collection = nil
+	m.clearedcollection = false
+}
+
 // Op returns the operation name.
 func (m *BookMutation) Op() Op {
 	return m.op
@@ -375,49 +416,77 @@ func (m *BookMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *BookMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.collection != nil {
+		edges = append(edges, book.EdgeCollection)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *BookMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case book.EdgeCollection:
+		if id := m.collection; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BookMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *BookMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *BookMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedcollection {
+		edges = append(edges, book.EdgeCollection)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *BookMutation) EdgeCleared(name string) bool {
+	switch name {
+	case book.EdgeCollection:
+		return m.clearedcollection
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *BookMutation) ClearEdge(name string) error {
+	switch name {
+	case book.EdgeCollection:
+		m.ClearCollection()
+		return nil
+	}
 	return fmt.Errorf("unknown Book unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *BookMutation) ResetEdge(name string) error {
+	switch name {
+	case book.EdgeCollection:
+		m.ResetCollection()
+		return nil
+	}
 	return fmt.Errorf("unknown Book edge %s", name)
 }
 
@@ -429,6 +498,9 @@ type CollectionMutation struct {
 	id            *int
 	name          *string
 	clearedFields map[string]struct{}
+	books         map[int]struct{}
+	removedbooks  map[int]struct{}
+	clearedbooks  bool
 	done          bool
 	oldValue      func(context.Context) (*Collection, error)
 	predicates    []predicate.Collection
@@ -549,6 +621,59 @@ func (m *CollectionMutation) ResetName() {
 	m.name = nil
 }
 
+// AddBookIDs adds the "books" edge to the Book entity by ids.
+func (m *CollectionMutation) AddBookIDs(ids ...int) {
+	if m.books == nil {
+		m.books = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.books[ids[i]] = struct{}{}
+	}
+}
+
+// ClearBooks clears the "books" edge to the Book entity.
+func (m *CollectionMutation) ClearBooks() {
+	m.clearedbooks = true
+}
+
+// BooksCleared returns if the "books" edge to the Book entity was cleared.
+func (m *CollectionMutation) BooksCleared() bool {
+	return m.clearedbooks
+}
+
+// RemoveBookIDs removes the "books" edge to the Book entity by IDs.
+func (m *CollectionMutation) RemoveBookIDs(ids ...int) {
+	if m.removedbooks == nil {
+		m.removedbooks = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.removedbooks[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedBooks returns the removed IDs of the "books" edge to the Book entity.
+func (m *CollectionMutation) RemovedBooksIDs() (ids []int) {
+	for id := range m.removedbooks {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// BooksIDs returns the "books" edge IDs in the mutation.
+func (m *CollectionMutation) BooksIDs() (ids []int) {
+	for id := range m.books {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetBooks resets all changes to the "books" edge.
+func (m *CollectionMutation) ResetBooks() {
+	m.books = nil
+	m.clearedbooks = false
+	m.removedbooks = nil
+}
+
 // Op returns the operation name.
 func (m *CollectionMutation) Op() Op {
 	return m.op
@@ -662,48 +787,84 @@ func (m *CollectionMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *CollectionMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.books != nil {
+		edges = append(edges, collection.EdgeBooks)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *CollectionMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case collection.EdgeBooks:
+		ids := make([]ent.Value, 0, len(m.books))
+		for id := range m.books {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *CollectionMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removedbooks != nil {
+		edges = append(edges, collection.EdgeBooks)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *CollectionMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case collection.EdgeBooks:
+		ids := make([]ent.Value, 0, len(m.removedbooks))
+		for id := range m.removedbooks {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *CollectionMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedbooks {
+		edges = append(edges, collection.EdgeBooks)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *CollectionMutation) EdgeCleared(name string) bool {
+	switch name {
+	case collection.EdgeBooks:
+		return m.clearedbooks
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *CollectionMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Collection unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *CollectionMutation) ResetEdge(name string) error {
+	switch name {
+	case collection.EdgeBooks:
+		m.ResetBooks()
+		return nil
+	}
 	return fmt.Errorf("unknown Collection edge %s", name)
 }

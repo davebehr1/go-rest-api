@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"lxdAssessmentServer/ent/book"
+	"lxdAssessmentServer/ent/collection"
 	"lxdAssessmentServer/ent/predicate"
 	"math"
 
@@ -23,6 +24,9 @@ type BookQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Book
+	// eager-loading edges.
+	withCollection *CollectionQuery
+	withFKs        bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -50,6 +54,28 @@ func (bq *BookQuery) Offset(offset int) *BookQuery {
 func (bq *BookQuery) Order(o ...OrderFunc) *BookQuery {
 	bq.order = append(bq.order, o...)
 	return bq
+}
+
+// QueryCollection chains the current query on the "collection" edge.
+func (bq *BookQuery) QueryCollection() *CollectionQuery {
+	query := &CollectionQuery{config: bq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := bq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := bq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(book.Table, book.FieldID, selector),
+			sqlgraph.To(collection.Table, collection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, book.CollectionTable, book.CollectionColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(bq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Book entity from the query.
@@ -228,15 +254,27 @@ func (bq *BookQuery) Clone() *BookQuery {
 		return nil
 	}
 	return &BookQuery{
-		config:     bq.config,
-		limit:      bq.limit,
-		offset:     bq.offset,
-		order:      append([]OrderFunc{}, bq.order...),
-		predicates: append([]predicate.Book{}, bq.predicates...),
+		config:         bq.config,
+		limit:          bq.limit,
+		offset:         bq.offset,
+		order:          append([]OrderFunc{}, bq.order...),
+		predicates:     append([]predicate.Book{}, bq.predicates...),
+		withCollection: bq.withCollection.Clone(),
 		// clone intermediate query.
 		sql:  bq.sql.Clone(),
 		path: bq.path,
 	}
+}
+
+// WithCollection tells the query-builder to eager-load the nodes that are connected to
+// the "collection" edge. The optional arguments are used to configure the query builder of the edge.
+func (bq *BookQuery) WithCollection(opts ...func(*CollectionQuery)) *BookQuery {
+	query := &CollectionQuery{config: bq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	bq.withCollection = query
+	return bq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -302,9 +340,19 @@ func (bq *BookQuery) prepareQuery(ctx context.Context) error {
 
 func (bq *BookQuery) sqlAll(ctx context.Context) ([]*Book, error) {
 	var (
-		nodes = []*Book{}
-		_spec = bq.querySpec()
+		nodes       = []*Book{}
+		withFKs     = bq.withFKs
+		_spec       = bq.querySpec()
+		loadedTypes = [1]bool{
+			bq.withCollection != nil,
+		}
 	)
+	if bq.withCollection != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, book.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &Book{config: bq.config}
 		nodes = append(nodes, node)
@@ -315,6 +363,7 @@ func (bq *BookQuery) sqlAll(ctx context.Context) ([]*Book, error) {
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, bq.driver, _spec); err != nil {
@@ -323,6 +372,33 @@ func (bq *BookQuery) sqlAll(ctx context.Context) ([]*Book, error) {
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := bq.withCollection; query != nil {
+		ids := make([]int, 0, len(nodes))
+		nodeids := make(map[int][]*Book)
+		for i := range nodes {
+			fk := nodes[i].collection_books
+			if fk != nil {
+				ids = append(ids, *fk)
+				nodeids[*fk] = append(nodeids[*fk], nodes[i])
+			}
+		}
+		query.Where(collection.IDIn(ids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := nodeids[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "collection_books" returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Collection = n
+			}
+		}
+	}
+
 	return nodes, nil
 }
 

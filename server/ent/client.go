@@ -14,6 +14,7 @@ import (
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -211,6 +212,22 @@ func (c *BookClient) GetX(ctx context.Context, id int) *Book {
 	return obj
 }
 
+// QueryCollection queries the collection edge of a Book.
+func (c *BookClient) QueryCollection(b *Book) *CollectionQuery {
+	query := &CollectionQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := b.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(book.Table, book.FieldID, id),
+			sqlgraph.To(collection.Table, collection.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, book.CollectionTable, book.CollectionColumn),
+		)
+		fromV = sqlgraph.Neighbors(b.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *BookClient) Hooks() []Hook {
 	return c.hooks.Book
@@ -297,6 +314,22 @@ func (c *CollectionClient) GetX(ctx context.Context, id int) *Collection {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryBooks queries the books edge of a Collection.
+func (c *CollectionClient) QueryBooks(co *Collection) *BookQuery {
+	query := &BookQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(collection.Table, collection.FieldID, id),
+			sqlgraph.To(book.Table, book.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, collection.BooksTable, collection.BooksColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.

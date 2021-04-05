@@ -14,13 +14,21 @@ var (
 		{Name: "author", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
 		{Name: "title", Type: field.TypeString},
+		{Name: "collection_books", Type: field.TypeInt, Nullable: true},
 	}
 	// BooksTable holds the schema information for the "books" table.
 	BooksTable = &schema.Table{
-		Name:        "books",
-		Columns:     BooksColumns,
-		PrimaryKey:  []*schema.Column{BooksColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{},
+		Name:       "books",
+		Columns:    BooksColumns,
+		PrimaryKey: []*schema.Column{BooksColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "books_collections_books",
+				Columns:    []*schema.Column{BooksColumns[4]},
+				RefColumns: []*schema.Column{CollectionsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// CollectionsColumns holds the columns for the "collections" table.
 	CollectionsColumns = []*schema.Column{
@@ -42,4 +50,5 @@ var (
 )
 
 func init() {
+	BooksTable.ForeignKeys[0].RefTable = CollectionsTable
 }

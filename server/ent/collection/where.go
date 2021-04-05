@@ -6,6 +6,7 @@ import (
 	"lxdAssessmentServer/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -206,6 +207,34 @@ func NameEqualFold(v string) predicate.Collection {
 func NameContainsFold(v string) predicate.Collection {
 	return predicate.Collection(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldName), v))
+	})
+}
+
+// HasBooks applies the HasEdge predicate on the "books" edge.
+func HasBooks() predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(BooksTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, BooksTable, BooksColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasBooksWith applies the HasEdge predicate on the "books" edge with a given conditions (other predicates).
+func HasBooksWith(preds ...predicate.Book) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(BooksInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, BooksTable, BooksColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

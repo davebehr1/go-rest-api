@@ -9,8 +9,17 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// EdgeBooks holds the string denoting the books edge name in mutations.
+	EdgeBooks = "books"
 	// Table holds the table name of the collection in the database.
 	Table = "collections"
+	// BooksTable is the table the holds the books relation/edge.
+	BooksTable = "books"
+	// BooksInverseTable is the table name for the Book entity.
+	// It exists in this package in order to avoid circular dependency with the "book" package.
+	BooksInverseTable = "books"
+	// BooksColumn is the table column denoting the books relation/edge.
+	BooksColumn = "collection_books"
 )
 
 // Columns holds all SQL columns for collection fields.

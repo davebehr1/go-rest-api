@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"lxdAssessmentServer/ent/book"
+	"lxdAssessmentServer/ent/collection"
 	"lxdAssessmentServer/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
@@ -44,9 +45,34 @@ func (bu *BookUpdate) SetTitle(s string) *BookUpdate {
 	return bu
 }
 
+// SetCollectionID sets the "collection" edge to the Collection entity by ID.
+func (bu *BookUpdate) SetCollectionID(id int) *BookUpdate {
+	bu.mutation.SetCollectionID(id)
+	return bu
+}
+
+// SetNillableCollectionID sets the "collection" edge to the Collection entity by ID if the given value is not nil.
+func (bu *BookUpdate) SetNillableCollectionID(id *int) *BookUpdate {
+	if id != nil {
+		bu = bu.SetCollectionID(*id)
+	}
+	return bu
+}
+
+// SetCollection sets the "collection" edge to the Collection entity.
+func (bu *BookUpdate) SetCollection(c *Collection) *BookUpdate {
+	return bu.SetCollectionID(c.ID)
+}
+
 // Mutation returns the BookMutation object of the builder.
 func (bu *BookUpdate) Mutation() *BookMutation {
 	return bu.mutation
+}
+
+// ClearCollection clears the "collection" edge to the Collection entity.
+func (bu *BookUpdate) ClearCollection() *BookUpdate {
+	bu.mutation.ClearCollection()
+	return bu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -139,6 +165,41 @@ func (bu *BookUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: book.FieldTitle,
 		})
 	}
+	if bu.mutation.CollectionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   book.CollectionTable,
+			Columns: []string{book.CollectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: collection.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := bu.mutation.CollectionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   book.CollectionTable,
+			Columns: []string{book.CollectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: collection.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, bu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{book.Label}
@@ -175,9 +236,34 @@ func (buo *BookUpdateOne) SetTitle(s string) *BookUpdateOne {
 	return buo
 }
 
+// SetCollectionID sets the "collection" edge to the Collection entity by ID.
+func (buo *BookUpdateOne) SetCollectionID(id int) *BookUpdateOne {
+	buo.mutation.SetCollectionID(id)
+	return buo
+}
+
+// SetNillableCollectionID sets the "collection" edge to the Collection entity by ID if the given value is not nil.
+func (buo *BookUpdateOne) SetNillableCollectionID(id *int) *BookUpdateOne {
+	if id != nil {
+		buo = buo.SetCollectionID(*id)
+	}
+	return buo
+}
+
+// SetCollection sets the "collection" edge to the Collection entity.
+func (buo *BookUpdateOne) SetCollection(c *Collection) *BookUpdateOne {
+	return buo.SetCollectionID(c.ID)
+}
+
 // Mutation returns the BookMutation object of the builder.
 func (buo *BookUpdateOne) Mutation() *BookMutation {
 	return buo.mutation
+}
+
+// ClearCollection clears the "collection" edge to the Collection entity.
+func (buo *BookUpdateOne) ClearCollection() *BookUpdateOne {
+	buo.mutation.ClearCollection()
+	return buo
 }
 
 // Save executes the query and returns the updated Book entity.
@@ -274,6 +360,41 @@ func (buo *BookUpdateOne) sqlSave(ctx context.Context) (_node *Book, err error) 
 			Value:  value,
 			Column: book.FieldTitle,
 		})
+	}
+	if buo.mutation.CollectionCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   book.CollectionTable,
+			Columns: []string{book.CollectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: collection.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := buo.mutation.CollectionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   book.CollectionTable,
+			Columns: []string{book.CollectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: collection.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Book{config: buo.config}
 	_spec.Assign = _node.assignValues

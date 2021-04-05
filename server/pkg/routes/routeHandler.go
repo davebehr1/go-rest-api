@@ -18,6 +18,7 @@ func RouteHandlers(client *ent.Client, db *sql.DB) *mux.Router {
 	s := r.PathPrefix("/1.0").Subrouter()
 	s.HandleFunc("/test", h.Test).Methods("GET")
 	s.HandleFunc("/book", h.CreateBook).Methods("POST")
+	s.HandleFunc("/books", h.GetBooks).Methods("GET")
 
 	return r
 }

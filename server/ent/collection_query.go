@@ -4,8 +4,10 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
+	"lxdAssessmentServer/ent/book"
 	"lxdAssessmentServer/ent/collection"
 	"lxdAssessmentServer/ent/predicate"
 	"math"
@@ -23,6 +25,8 @@ type CollectionQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Collection
+	// eager-loading edges.
+	withBooks *BookQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -50,6 +54,28 @@ func (cq *CollectionQuery) Offset(offset int) *CollectionQuery {
 func (cq *CollectionQuery) Order(o ...OrderFunc) *CollectionQuery {
 	cq.order = append(cq.order, o...)
 	return cq
+}
+
+// QueryBooks chains the current query on the "books" edge.
+func (cq *CollectionQuery) QueryBooks() *BookQuery {
+	query := &BookQuery{config: cq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := cq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := cq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(collection.Table, collection.FieldID, selector),
+			sqlgraph.To(book.Table, book.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, collection.BooksTable, collection.BooksColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(cq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Collection entity from the query.
@@ -233,10 +259,22 @@ func (cq *CollectionQuery) Clone() *CollectionQuery {
 		offset:     cq.offset,
 		order:      append([]OrderFunc{}, cq.order...),
 		predicates: append([]predicate.Collection{}, cq.predicates...),
+		withBooks:  cq.withBooks.Clone(),
 		// clone intermediate query.
 		sql:  cq.sql.Clone(),
 		path: cq.path,
 	}
+}
+
+// WithBooks tells the query-builder to eager-load the nodes that are connected to
+// the "books" edge. The optional arguments are used to configure the query builder of the edge.
+func (cq *CollectionQuery) WithBooks(opts ...func(*BookQuery)) *CollectionQuery {
+	query := &BookQuery{config: cq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	cq.withBooks = query
+	return cq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -302,8 +340,11 @@ func (cq *CollectionQuery) prepareQuery(ctx context.Context) error {
 
 func (cq *CollectionQuery) sqlAll(ctx context.Context) ([]*Collection, error) {
 	var (
-		nodes = []*Collection{}
-		_spec = cq.querySpec()
+		nodes       = []*Collection{}
+		_spec       = cq.querySpec()
+		loadedTypes = [1]bool{
+			cq.withBooks != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &Collection{config: cq.config}
@@ -315,6 +356,7 @@ func (cq *CollectionQuery) sqlAll(ctx context.Context) ([]*Collection, error) {
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, cq.driver, _spec); err != nil {
@@ -323,6 +365,36 @@ func (cq *CollectionQuery) sqlAll(ctx context.Context) ([]*Collection, error) {
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := cq.withBooks; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[int]*Collection)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Books = []*Book{}
+		}
+		query.withFKs = true
+		query.Where(predicate.Book(func(s *sql.Selector) {
+			s.Where(sql.InValues(collection.BooksColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.collection_books
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "collection_books" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "collection_books" returned %v for node %v`, *fk, n.ID)
+			}
+			node.Edges.Books = append(node.Edges.Books, n)
+		}
+	}
+
 	return nodes, nil
 }
 

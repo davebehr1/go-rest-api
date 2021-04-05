@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"lxdAssessmentServer/ent/book"
+	"lxdAssessmentServer/ent/collection"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -35,6 +36,25 @@ func (bc *BookCreate) SetDescription(s string) *BookCreate {
 func (bc *BookCreate) SetTitle(s string) *BookCreate {
 	bc.mutation.SetTitle(s)
 	return bc
+}
+
+// SetCollectionID sets the "collection" edge to the Collection entity by ID.
+func (bc *BookCreate) SetCollectionID(id int) *BookCreate {
+	bc.mutation.SetCollectionID(id)
+	return bc
+}
+
+// SetNillableCollectionID sets the "collection" edge to the Collection entity by ID if the given value is not nil.
+func (bc *BookCreate) SetNillableCollectionID(id *int) *BookCreate {
+	if id != nil {
+		bc = bc.SetCollectionID(*id)
+	}
+	return bc
+}
+
+// SetCollection sets the "collection" edge to the Collection entity.
+func (bc *BookCreate) SetCollection(c *Collection) *BookCreate {
+	return bc.SetCollectionID(c.ID)
 }
 
 // Mutation returns the BookMutation object of the builder.
@@ -147,6 +167,26 @@ func (bc *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 			Column: book.FieldTitle,
 		})
 		_node.Title = value
+	}
+	if nodes := bc.mutation.CollectionIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   book.CollectionTable,
+			Columns: []string{book.CollectionColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: collection.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.collection_books = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

@@ -21,7 +21,7 @@ func HttpError(w http.ResponseWriter, code int, err string) {
 	errorPayload := Error{
 		Code:         code,
 		ErrorMessage: err,
-		Success:      true,
+		Success:      false,
 	}
 	json.NewEncoder(w).Encode(errorPayload)
 }
