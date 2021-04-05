@@ -140,8 +140,16 @@ func (h *Handler) GetBooks(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) GetCollections(w http.ResponseWriter, req *http.Request) {
+	params := req.URL.Query()
+	name := params.Get("name")
 
-	collections, err := h.entClient.Collection.Query().All(req.Context())
+	collectionBuilder := h.entClient.Collection.Query()
+
+	if name != "" {
+		collectionBuilder.Where(collection.NameEQ(name))
+	}
+
+	collections, err := collectionBuilder.All(req.Context())
 
 	if err != nil {
 		pkg.HttpError(w, http.StatusInternalServerError, err.Error())
