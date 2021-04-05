@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"lxdAssessmentServer/ent"
+	"lxdAssessmentServer/ent/book"
+	"lxdAssessmentServer/ent/collection"
 	"lxdAssessmentServer/pkg"
 	"net/http"
 )
@@ -39,6 +41,33 @@ func (h *Handler) CreateBook(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	pkg.HttpSuccess(w, http.StatusCreated, book)
+}
+
+func (h *Handler) DeleteBook(w http.ResponseWriter, req *http.Request) {
+	_, err := h.entClient.Book.Query().Where(book.IDEQ(1)).Only(req.Context())
+	if err != nil {
+		pkg.HttpError(w, http.StatusInternalServerError, "book does not exist")
+	}
+	_, err = h.entClient.Book.Delete().Where(book.IDEQ(1)).Exec(req.Context())
+	if err != nil {
+		pkg.HttpError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	pkg.HttpSuccess(w, http.StatusCreated, "deleted book")
+}
+
+func (h *Handler) DeleteCollection(w http.ResponseWriter, req *http.Request) {
+	_, err := h.entClient.Collection.Query().Where(collection.IDEQ(1)).Only(req.Context())
+	if err != nil {
+		pkg.HttpError(w, http.StatusInternalServerError, "collection does not exist")
+	}
+
+	_, err = h.entClient.Collection.Delete().Where(collection.IDEQ(1)).Exec(req.Context())
+	if err != nil {
+		pkg.HttpError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	pkg.HttpSuccess(w, http.StatusCreated, "deleted collection")
 }
 
 func (h *Handler) CreateCollection(w http.ResponseWriter, req *http.Request) {
