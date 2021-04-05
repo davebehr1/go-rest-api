@@ -1,51 +1,58 @@
-/*
-Copyright © 2021 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"lxdAssessmentClient/pkg"
+	"net/http"
+	"os"
 
+	"github.com/jedib0t/go-pretty/table"
 	"github.com/spf13/cobra"
 )
+
+type CollectionResponse struct {
+	ID   int
+	Name string
+}
 
 // collectionsCmd represents the collections command
 var collectionsCmd = &cobra.Command{
 	Use:   "collections",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "returns a list of collections from the books collection api",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("collections called")
+		client := &http.Client{}
+		req, _ := http.NewRequest("GET", "http://localhost:8080/1.0/collections", nil)
+
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+
+		var collections []CollectionResponse
+		var response pkg.HttpResponse
+		json.Unmarshal(bodyBytes, &response)
+		payload, _ := json.Marshal(response.Payload)
+		json.Unmarshal(payload, &collections)
+
+		t := table.NewWriter()
+		t.SetOutputMirror(os.Stdout)
+		t.AppendHeader(table.Row{"id", "name"})
+		for _, collection := range collections {
+			t.AppendRows([]table.Row{
+				{collection.ID, collection.Name},
+			})
+		}
+		t.Render()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(collectionsCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// collectionsCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// collectionsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	listCmd.AddCommand(collectionsCmd)
 }

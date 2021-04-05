@@ -41,6 +41,15 @@ func (h *Handler) CreateBook(w http.ResponseWriter, req *http.Request) {
 	pkg.HttpSuccess(w, http.StatusCreated, book)
 }
 
+func (h *Handler) CreateCollection(w http.ResponseWriter, req *http.Request) {
+	book, err := h.entClient.Collection.Create().SetName("fiction").Save(req.Context())
+	if err != nil {
+		pkg.HttpError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	pkg.HttpSuccess(w, http.StatusCreated, book)
+}
+
 func (h *Handler) GetBooks(w http.ResponseWriter, req *http.Request) {
 
 	books, err := h.entClient.Book.Query().WithCollection().All(req.Context())
@@ -66,5 +75,17 @@ func (h *Handler) GetBooks(w http.ResponseWriter, req *http.Request) {
 	}
 
 	pkg.HttpSuccess(w, http.StatusOK, booksPayload)
+
+}
+
+func (h *Handler) GetCollections(w http.ResponseWriter, req *http.Request) {
+
+	collections, err := h.entClient.Collection.Query().All(req.Context())
+
+	if err != nil {
+		pkg.HttpError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	pkg.HttpSuccess(w, http.StatusOK, collections)
 
 }
