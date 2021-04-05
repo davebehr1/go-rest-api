@@ -61,6 +61,12 @@ func (bc *BookCreate) SetDescription(s string) *BookCreate {
 	return bc
 }
 
+// SetEdition sets the "edition" field.
+func (bc *BookCreate) SetEdition(i int) *BookCreate {
+	bc.mutation.SetEdition(i)
+	return bc
+}
+
 // SetTitle sets the "title" field.
 func (bc *BookCreate) SetTitle(s string) *BookCreate {
 	bc.mutation.SetTitle(s)
@@ -162,6 +168,9 @@ func (bc *BookCreate) check() error {
 	if _, ok := bc.mutation.Description(); !ok {
 		return &ValidationError{Name: "description", err: errors.New("ent: missing required field \"description\"")}
 	}
+	if _, ok := bc.mutation.Edition(); !ok {
+		return &ValidationError{Name: "edition", err: errors.New("ent: missing required field \"edition\"")}
+	}
 	if _, ok := bc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New("ent: missing required field \"title\"")}
 	}
@@ -223,6 +232,14 @@ func (bc *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 			Column: book.FieldDescription,
 		})
 		_node.Description = value
+	}
+	if value, ok := bc.mutation.Edition(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: book.FieldEdition,
+		})
+		_node.Edition = value
 	}
 	if value, ok := bc.mutation.Title(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

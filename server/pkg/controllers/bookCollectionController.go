@@ -13,11 +13,13 @@ import (
 )
 
 type Book struct {
-	ID          int
-	Title       string
-	Description string
-	Author      string
-	Collection  string
+	ID            int
+	Title         string
+	Description   string
+	Author        string
+	Collection    string
+	Edition       int
+	PublishedDate string
 }
 
 type Collection struct {
@@ -50,7 +52,12 @@ func (h *Handler) CreateBook(w http.ResponseWriter, req *http.Request) {
 	decoder.Decode(&p)
 
 	collection, _ := h.entClient.Collection.Query().Where(collection.NameEQ(collectionName)).Only(req.Context())
-	bookCreator := h.entClient.Book.Create().SetTitle(p.Title).SetDescription(p.Description).SetAuthor(p.Author)
+	bookCreator := h.entClient.Book.Create().SetTitle(p.Title).SetDescription(p.Description).SetAuthor(p.Author).SetEdition(p.Edition)
+
+	if !p.PublishedAt.IsZero() {
+
+		bookCreator.SetPublishedAt(p.PublishedAt)
+	}
 
 	if collection != nil {
 
@@ -230,10 +237,12 @@ func (h *Handler) GetBooks(w http.ResponseWriter, req *http.Request) {
 
 	for index, book := range books {
 		booksPayload = append(booksPayload, Book{
-			ID:          book.ID,
-			Title:       book.Title,
-			Description: book.Description,
-			Author:      book.Author,
+			ID:            book.ID,
+			Title:         book.Title,
+			Description:   book.Description,
+			Author:        book.Author,
+			Edition:       book.Edition,
+			PublishedDate: book.PublishedAt.String(),
 		})
 		if book.Edges.Collection != nil {
 			booksPayload[index].Collection = book.Edges.Collection.Name

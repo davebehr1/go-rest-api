@@ -22,6 +22,7 @@ func (Book) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("author"),
 		field.String("description"),
+		field.Int("edition"),
 		field.String("title"),
 	}
 }

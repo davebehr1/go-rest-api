@@ -15,6 +15,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "author", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
+		{Name: "edition", Type: field.TypeInt},
 		{Name: "title", Type: field.TypeString},
 		{Name: "collection_books", Type: field.TypeInt, Nullable: true},
 	}
@@ -26,7 +27,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "books_collections_books",
-				Columns:    []*schema.Column{BooksColumns[6]},
+				Columns:    []*schema.Column{BooksColumns[7]},
 				RefColumns: []*schema.Column{CollectionsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

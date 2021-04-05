@@ -19,6 +19,8 @@ const (
 	FieldAuthor = "author"
 	// FieldDescription holds the string denoting the description field in the database.
 	FieldDescription = "description"
+	// FieldEdition holds the string denoting the edition field in the database.
+	FieldEdition = "edition"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
 	// EdgeCollection holds the string denoting the collection edge name in mutations.
@@ -41,6 +43,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldAuthor,
 	FieldDescription,
+	FieldEdition,
 	FieldTitle,
 }
 

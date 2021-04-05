@@ -13,11 +13,13 @@ import (
 )
 
 type BookResponse struct {
-	ID          int
-	Title       string
-	Description string
-	Author      string
-	Collection  string
+	ID            int
+	Title         string
+	Description   string
+	Author        string
+	Collection    string
+	Edition       int
+	PublishedDate string
 }
 
 // booksCmd represents the books command
@@ -66,13 +68,13 @@ var booksCmd = &cobra.Command{
 		json.Unmarshal(bodyBytes, &response)
 		payload, _ := json.Marshal(response.Payload)
 		json.Unmarshal(payload, &books)
-
+		fmt.Println(books)
 		t := table.NewWriter()
 		t.SetOutputMirror(os.Stdout)
-		t.AppendHeader(table.Row{"id", "title", "description", "author", "collection"})
+		t.AppendHeader(table.Row{"id", "title", "description", "author", "edition", "publishedDate", "collection"})
 		for _, book := range books {
 			t.AppendRows([]table.Row{
-				{book.ID, book.Title, book.Description, book.Author, book.Collection},
+				{book.ID, book.Title, book.Description, book.Author, book.Edition, book.PublishedDate, book.Collection},
 			})
 		}
 		t.Render()

@@ -25,6 +25,8 @@ type Book struct {
 	Author string `json:"author,omitempty"`
 	// Description holds the value of the "description" field.
 	Description string `json:"description,omitempty"`
+	// Edition holds the value of the "edition" field.
+	Edition int `json:"edition,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -61,7 +63,7 @@ func (*Book) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case book.FieldID:
+		case book.FieldID, book.FieldEdition:
 			values[i] = &sql.NullInt64{}
 		case book.FieldAuthor, book.FieldDescription, book.FieldTitle:
 			values[i] = &sql.NullString{}
@@ -113,6 +115,12 @@ func (b *Book) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
 				b.Description = value.String
+			}
+		case book.FieldEdition:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field edition", values[i])
+			} else if value.Valid {
+				b.Edition = int(value.Int64)
 			}
 		case book.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -168,6 +176,8 @@ func (b *Book) String() string {
 	builder.WriteString(b.Author)
 	builder.WriteString(", description=")
 	builder.WriteString(b.Description)
+	builder.WriteString(", edition=")
+	builder.WriteString(fmt.Sprintf("%v", b.Edition))
 	builder.WriteString(", title=")
 	builder.WriteString(b.Title)
 	builder.WriteByte(')')

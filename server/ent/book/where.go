@@ -121,6 +121,13 @@ func Description(v string) predicate.Book {
 	})
 }
 
+// Edition applies equality check predicate on the "edition" field. It's identical to EditionEQ.
+func Edition(v int) predicate.Book {
+	return predicate.Book(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldEdition), v))
+	})
+}
+
 // Title applies equality check predicate on the "title" field. It's identical to TitleEQ.
 func Title(v string) predicate.Book {
 	return predicate.Book(func(s *sql.Selector) {
@@ -499,6 +506,82 @@ func DescriptionEqualFold(v string) predicate.Book {
 func DescriptionContainsFold(v string) predicate.Book {
 	return predicate.Book(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldDescription), v))
+	})
+}
+
+// EditionEQ applies the EQ predicate on the "edition" field.
+func EditionEQ(v int) predicate.Book {
+	return predicate.Book(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldEdition), v))
+	})
+}
+
+// EditionNEQ applies the NEQ predicate on the "edition" field.
+func EditionNEQ(v int) predicate.Book {
+	return predicate.Book(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldEdition), v))
+	})
+}
+
+// EditionIn applies the In predicate on the "edition" field.
+func EditionIn(vs ...int) predicate.Book {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Book(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldEdition), v...))
+	})
+}
+
+// EditionNotIn applies the NotIn predicate on the "edition" field.
+func EditionNotIn(vs ...int) predicate.Book {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Book(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldEdition), v...))
+	})
+}
+
+// EditionGT applies the GT predicate on the "edition" field.
+func EditionGT(v int) predicate.Book {
+	return predicate.Book(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldEdition), v))
+	})
+}
+
+// EditionGTE applies the GTE predicate on the "edition" field.
+func EditionGTE(v int) predicate.Book {
+	return predicate.Book(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldEdition), v))
+	})
+}
+
+// EditionLT applies the LT predicate on the "edition" field.
+func EditionLT(v int) predicate.Book {
+	return predicate.Book(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldEdition), v))
+	})
+}
+
+// EditionLTE applies the LTE predicate on the "edition" field.
+func EditionLTE(v int) predicate.Book {
+	return predicate.Book(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldEdition), v))
 	})
 }
 

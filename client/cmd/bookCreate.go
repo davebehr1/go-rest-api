@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"lxdAssessmentClient/pkg"
 	"net/http"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -15,6 +16,7 @@ type Book struct {
 	Title       string
 	Description string
 	Author      string
+	PublishedAt time.Time
 }
 
 // bookCreateCmd represents the bookCreate command
@@ -62,7 +64,7 @@ var bookCreateCmd = &cobra.Command{
 
 func init() {
 	createCmd.AddCommand(bookCreateCmd)
-	bookCreateCmd.Flags().String("book", "", "{title:harry potter,author:jk,description:fantasy}")
+	bookCreateCmd.Flags().String("book", "", "{title:harry potter,author:jk,description:fantasy,edition:1}")
 	bookCreateCmd.Flags().String("collection", "", "fantasy")
 	bookCreateCmd.MarkFlagRequired("book")
 }

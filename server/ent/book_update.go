@@ -52,6 +52,19 @@ func (bu *BookUpdate) SetDescription(s string) *BookUpdate {
 	return bu
 }
 
+// SetEdition sets the "edition" field.
+func (bu *BookUpdate) SetEdition(i int) *BookUpdate {
+	bu.mutation.ResetEdition()
+	bu.mutation.SetEdition(i)
+	return bu
+}
+
+// AddEdition adds i to the "edition" field.
+func (bu *BookUpdate) AddEdition(i int) *BookUpdate {
+	bu.mutation.AddEdition(i)
+	return bu
+}
+
 // SetTitle sets the "title" field.
 func (bu *BookUpdate) SetTitle(s string) *BookUpdate {
 	bu.mutation.SetTitle(s)
@@ -198,6 +211,20 @@ func (bu *BookUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: book.FieldDescription,
 		})
 	}
+	if value, ok := bu.mutation.Edition(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: book.FieldEdition,
+		})
+	}
+	if value, ok := bu.mutation.AddedEdition(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: book.FieldEdition,
+		})
+	}
 	if value, ok := bu.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -279,6 +306,19 @@ func (buo *BookUpdateOne) SetAuthor(s string) *BookUpdateOne {
 // SetDescription sets the "description" field.
 func (buo *BookUpdateOne) SetDescription(s string) *BookUpdateOne {
 	buo.mutation.SetDescription(s)
+	return buo
+}
+
+// SetEdition sets the "edition" field.
+func (buo *BookUpdateOne) SetEdition(i int) *BookUpdateOne {
+	buo.mutation.ResetEdition()
+	buo.mutation.SetEdition(i)
+	return buo
+}
+
+// AddEdition adds i to the "edition" field.
+func (buo *BookUpdateOne) AddEdition(i int) *BookUpdateOne {
+	buo.mutation.AddEdition(i)
 	return buo
 }
 
@@ -431,6 +471,20 @@ func (buo *BookUpdateOne) sqlSave(ctx context.Context) (_node *Book, err error) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: book.FieldDescription,
+		})
+	}
+	if value, ok := buo.mutation.Edition(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: book.FieldEdition,
+		})
+	}
+	if value, ok := buo.mutation.AddedEdition(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: book.FieldEdition,
 		})
 	}
 	if value, ok := buo.mutation.Title(); ok {
