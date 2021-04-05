@@ -43,3 +43,36 @@
         *   Examples:
             *   Go run main.go list collections --name=Fiction
     *   --help
+
+## REST API:
+ 
+### RETURN VALUES:
+   - standard return
+   - error
+#### standard return:
+
+```js
+{
+    "status_code": 200, // success codes
+    "payload":{}
+}
+```
+
+#### error:
+
+```js
+{
+    "status_code": 401, // error codes
+    "error": {}  // the error that occured, the client does not have to know about alot of these for security
+}
+```
+
+
+### ROUTES:
+   - [`/1.0`](###1.0):
+      * [`/1.0/books`](###books):
+      * [`/1.0/book/{id}`](###booksid):
+      * [`/1.0/book`](###book): 
+      * [`/1.0/collection`](###collection):
+      * [`/1.0/collections`](###collections):
+      * [`/1.0/collection/{id}`](###collectionsId):
