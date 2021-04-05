@@ -143,7 +143,7 @@ func (h *Handler) DeleteCollection(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	_, err := h.entClient.Collection.Delete().Where(collection.IDEQ(1)).Exec(req.Context())
+	_, err := h.entClient.Collection.Delete().Where(collection.IDEQ(Id)).Exec(req.Context())
 	if err != nil {
 		pkg.HttpError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -192,18 +192,18 @@ func (h *Handler) UpdateCollection(w http.ResponseWriter, req *http.Request) {
 		return
 	} else {
 		pkg.HttpError(w, http.StatusInternalServerError, "collection does not exist")
+		return
 	}
-
 }
 
 func (h *Handler) GetBooks(w http.ResponseWriter, req *http.Request) {
 	params := req.URL.Query()
 	author := params.Get("author")
 	title := params.Get("title")
-	fromDate := params.Get("from_date")
-	toDate := params.Get("to_date")
-	from, _ := time.Parse("2010-10-13", fromDate)
-	to, _ := time.Parse("2010-10-13", toDate)
+	fromDate := params.Get("fromDate")
+	toDate := params.Get("toDate")
+	from, _ := time.Parse("2006-05-02", fromDate)
+	to, _ := time.Parse("2006-05-02", toDate)
 
 	booksBuilder := h.entClient.Book.Query()
 	if author != "" {
