@@ -60,7 +60,11 @@ func (h *Handler) CreateBook(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) DeleteBook(w http.ResponseWriter, req *http.Request) {
-	b, _ := h.entClient.Book.Query().Where(book.IDEQ(1)).Only(req.Context())
+	params := req.URL.Query()
+	bookId := params.Get("id")
+	Id, _ := strconv.Atoi(bookId)
+
+	b, _ := h.entClient.Book.Query().Where(book.IDEQ(Id)).Only(req.Context())
 	if b == nil {
 		pkg.HttpError(w, http.StatusInternalServerError, "book does not exist")
 	}
@@ -70,6 +74,7 @@ func (h *Handler) DeleteBook(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	pkg.HttpSuccess(w, http.StatusCreated, "deleted book")
+
 }
 
 func (h *Handler) UpdateBook(w http.ResponseWriter, req *http.Request) {
@@ -113,7 +118,11 @@ func (h *Handler) UpdateBook(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) DeleteCollection(w http.ResponseWriter, req *http.Request) {
-	c, _ := h.entClient.Collection.Query().Where(collection.IDEQ(1)).Only(req.Context())
+	params := req.URL.Query()
+	collectionId := params.Get("id")
+	Id, _ := strconv.Atoi(collectionId)
+
+	c, _ := h.entClient.Collection.Query().Where(collection.IDEQ(Id)).Only(req.Context())
 	if c == nil {
 		pkg.HttpError(w, http.StatusInternalServerError, "collection does not exist")
 	}

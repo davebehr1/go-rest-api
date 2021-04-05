@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"lxdAssessmentClient/pkg"
 	"net/http"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -15,8 +16,20 @@ var collectionDeleteCmd = &cobra.Command{
 	Use:   "collection",
 	Short: "delete a collection",
 	Run: func(cmd *cobra.Command, args []string) {
+		id, err := cmd.Flags().GetInt("id")
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+		collectionId := strconv.Itoa(id)
+
 		client := &http.Client{}
 		req, _ := http.NewRequest("DELETE", "http://localhost:8080/1.0/collection", nil)
+
+		q := req.URL.Query()
+		if collectionId != "" {
+			q.Add("id", collectionId)
+		}
+		req.URL.RawQuery = q.Encode()
 
 		resp, _ := client.Do(req)
 
@@ -33,4 +46,6 @@ var collectionDeleteCmd = &cobra.Command{
 
 func init() {
 	deleteCmd.AddCommand(collectionDeleteCmd)
+	collectionDeleteCmd.Flags().Int("id", -1, "id of collection you want to delete")
+	collectionDeleteCmd.MarkFlagRequired("id")
 }
