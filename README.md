@@ -111,6 +111,10 @@
  * Description: deletes a book from database
  * Return: returns a success message if deleted else the error is returned
 
+#### PATCH
+ * Description: update a book entity
+ * Return: returns the book that was updated
+
 
 ### `/1.0/collections`
 #### GET
@@ -125,6 +129,10 @@
 #### DELETE
  * Description: deletes a collection from database
  * Return: returns a success message if deleted else the error is returned
+
+#### PATCH
+ * Description: update a collection entity
+ * Return: returns the collection that was updated
 
 
  ## Database Structure:
