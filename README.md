@@ -76,3 +76,39 @@
       * [`/1.0/collection`](###collection):
       * [`/1.0/collections`](###collections):
       * [`/1.0/collection/{id}`](###collectionsId):
+
+
+### `/1.0`
+#### Version 1 of the api
+
+### `/1.0/books`
+#### GET
+ * Description: books in the database
+ * Return: list of books
+
+
+### `/1.0/book`
+#### POST
+ * Description: adds book to database
+ * Return: returns book that was added to database
+
+
+### `/1.0/book/{id}`
+#### GET
+ * Description: book with specified id
+ * Return: book with specified id
+
+### `/1.0/collections`
+#### GET
+ * Description: collections in the database
+ * Return: list of collections
+
+### `/1.0/collection`
+#### PUT
+ * Description: adds collection to database
+ * Return: collection that was added to the database
+
+### `/1.0/collection/{id}`
+#### GET
+ * Description: collection with specific id and other query parameters
+ * Return: a collection with the id and other query parameters
