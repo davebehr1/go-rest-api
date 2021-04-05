@@ -1,5 +1,14 @@
 # lxdAssessment
 
+## BUILD INSTRUCTIONS:
+
+* cd server:
+   -  docker-compose up
+   -  go run main.go migrate
+   -  go run main.go serve
+* cd client:
+   - execute any of the cli commands listed below
+
 
 ## Cli commands for Server:
 
@@ -25,8 +34,35 @@
         *   Example:
             *   Go run main.go create book --book=’{“title”:”harryPotter”,”author”:”J.K Rowling”, “description”:”book about magic”}’ --collection=fiction
 *   ### Update:
-    *   Collection
+    *   Collection:
+          *   Flags:
+            *   -- id /required
+            *   --name / required
+            *   --help / help for command
+        *   Example:
+            *   Go run main.go update collection --id=1 --name=Fiction 
     *   Book
+          *   Flags:
+            *   -- id /required
+            *   --book / required
+            *   --help / help for command
+        *   Example:
+            *  Go run main.go update book --id=1 --book=’{“title”:”harryPotter”,”author”:”J.K Rowling”, “description”:”book about magic”}’ 
+    
+*   ### Delete:
+    *   Collection:
+         *   Flags:
+            *   --id / required
+            *   --help / help for command
+         *   Example:
+            *   Go run main.go delete collection --id=1
+    *   Book:
+          *   Flags:
+            *   --id / required
+            *   --help / help for command
+          *    Example:
+            *   Go run main.go delete book --id=1
+    
 *   ### Help
 *   ### List:
     *   Books:
@@ -102,6 +138,10 @@
  * Description: deletes a book from database
  * Return: returns a success message if deleted else the error is returned
 
+#### PATCH
+ * Description: update a book entity
+ * Return: returns the book that was updated
+
 
 ### `/1.0/collections`
 #### GET
@@ -116,6 +156,10 @@
 #### DELETE
  * Description: deletes a collection from database
  * Return: returns a success message if deleted else the error is returned
+
+#### PATCH
+ * Description: update a collection entity
+ * Return: returns the collection that was updated
 
 
  ## Database Structure:
