@@ -112,3 +112,24 @@
 #### GET
  * Description: collection with specific id and other query parameters
  * Return: a collection with the id and other query parameters
+
+
+ ## Database Structure:
+
+### Book
+| Field       	| data type 	|             	|
+|-------------	|-----------	|-------------	|
+| id          	| int8      	| FOREIGN_KEY 	|
+| author      	| varchar   	|             	|
+| description 	| varchar   	|             	|
+| title       	| varchar   	|             	|
+| createdAt   	| timestamp 	|             	|
+| updatedAt   	| timestamp 	|             	|
+
+### Collection
+| Field     	| data type 	|             	|
+|-----------	|-----------	|-------------	|
+| id        	| int8      	| PRIMARY_KEY 	|
+| name      	| varchar   	|             	|
+| createdAt 	| timestamp 	|             	|
+| updatedAt 	| timestamp 	|             	|
