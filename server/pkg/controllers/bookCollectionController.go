@@ -31,11 +31,25 @@ func NewHandler(client *ent.Client, sqlDB *sql.DB) *Handler {
 }
 
 func (h *Handler) Test(w http.ResponseWriter, req *http.Request) {
-	json.NewEncoder(w).Encode("api is alive")
+	json.NewEncoder(w).Encode("book collections api is alive")
 }
 
 func (h *Handler) CreateBook(w http.ResponseWriter, req *http.Request) {
-	book, err := h.entClient.Book.Create().SetTitle("harry potter").SetDescription("fantasy").SetAuthor("jk").Save(req.Context())
+	params := req.URL.Query()
+	collectionName := params.Get("collection")
+	var p ent.Book
+	decoder := json.NewDecoder(req.Body)
+	decoder.Decode(&p)
+
+	collection, _ := h.entClient.Collection.Query().Where(collection.NameEQ(collectionName)).Only(req.Context())
+	bookCreator := h.entClient.Book.Create().SetTitle(p.Title).SetDescription(p.Description).SetAuthor(p.Author)
+
+	if collection != nil {
+
+		bookCreator.SetCollection(collection)
+	}
+
+	book, err := bookCreator.Save(req.Context())
 	if err != nil {
 		pkg.HttpError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -44,11 +58,11 @@ func (h *Handler) CreateBook(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) DeleteBook(w http.ResponseWriter, req *http.Request) {
-	_, err := h.entClient.Book.Query().Where(book.IDEQ(1)).Only(req.Context())
-	if err != nil {
+	b, _ := h.entClient.Book.Query().Where(book.IDEQ(1)).Only(req.Context())
+	if b == nil {
 		pkg.HttpError(w, http.StatusInternalServerError, "book does not exist")
 	}
-	_, err = h.entClient.Book.Delete().Where(book.IDEQ(1)).Exec(req.Context())
+	_, err := h.entClient.Book.Delete().Where(book.IDEQ(1)).Exec(req.Context())
 	if err != nil {
 		pkg.HttpError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -57,12 +71,12 @@ func (h *Handler) DeleteBook(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) DeleteCollection(w http.ResponseWriter, req *http.Request) {
-	_, err := h.entClient.Collection.Query().Where(collection.IDEQ(1)).Only(req.Context())
-	if err != nil {
+	c, _ := h.entClient.Collection.Query().Where(collection.IDEQ(1)).Only(req.Context())
+	if c == nil {
 		pkg.HttpError(w, http.StatusInternalServerError, "collection does not exist")
 	}
 
-	_, err = h.entClient.Collection.Delete().Where(collection.IDEQ(1)).Exec(req.Context())
+	_, err := h.entClient.Collection.Delete().Where(collection.IDEQ(1)).Exec(req.Context())
 	if err != nil {
 		pkg.HttpError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -71,12 +85,19 @@ func (h *Handler) DeleteCollection(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) CreateCollection(w http.ResponseWriter, req *http.Request) {
-	book, err := h.entClient.Collection.Create().SetName("fiction").Save(req.Context())
-	if err != nil {
-		pkg.HttpError(w, http.StatusInternalServerError, err.Error())
-		return
+	params := req.URL.Query()
+	collectionName := params.Get("collection")
+	if collectionName != "" {
+		collection, err := h.entClient.Collection.Create().SetName(collectionName).Save(req.Context())
+		if err != nil {
+			pkg.HttpError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		pkg.HttpSuccess(w, http.StatusCreated, collection)
+	} else {
+		pkg.HttpError(w, http.StatusInternalServerError, "collection cant be empty")
 	}
-	pkg.HttpSuccess(w, http.StatusCreated, book)
+
 }
 
 func (h *Handler) GetBooks(w http.ResponseWriter, req *http.Request) {
