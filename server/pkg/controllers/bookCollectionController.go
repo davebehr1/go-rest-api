@@ -109,6 +109,8 @@ func (h *Handler) UpdateBook(w http.ResponseWriter, req *http.Request) {
 		}
 		if collection != nil {
 			bookUpdater.SetCollection(collection)
+		} else {
+			bookUpdater.ClearCollection()
 		}
 
 		_, err := bookUpdater.Save(req.Context())
