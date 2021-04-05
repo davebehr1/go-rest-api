@@ -1,5 +1,14 @@
 # lxdAssessment
 
+## BUILD INSTRUCTIONS:
+
+* cd server:
+   -  docker-compose up
+   -  go run main.go migrate
+   -  go run main.go serve
+* cd client:
+   - execute any of the cli commands listed below
+
 
 ## Cli commands for Server:
 
