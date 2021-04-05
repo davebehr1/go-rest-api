@@ -8,6 +8,7 @@ import (
 	"lxdAssessmentServer/ent/book"
 	"lxdAssessmentServer/ent/collection"
 	"lxdAssessmentServer/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -24,6 +25,18 @@ type CollectionUpdate struct {
 // Where adds a new predicate for the CollectionUpdate builder.
 func (cu *CollectionUpdate) Where(ps ...predicate.Collection) *CollectionUpdate {
 	cu.mutation.predicates = append(cu.mutation.predicates, ps...)
+	return cu
+}
+
+// SetPublishedAt sets the "publishedAt" field.
+func (cu *CollectionUpdate) SetPublishedAt(t time.Time) *CollectionUpdate {
+	cu.mutation.SetPublishedAt(t)
+	return cu
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (cu *CollectionUpdate) SetUpdatedAt(t time.Time) *CollectionUpdate {
+	cu.mutation.SetUpdatedAt(t)
 	return cu
 }
 
@@ -80,6 +93,7 @@ func (cu *CollectionUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
+	cu.defaults()
 	if len(cu.hooks) == 0 {
 		affected, err = cu.sqlSave(ctx)
 	} else {
@@ -125,6 +139,18 @@ func (cu *CollectionUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cu *CollectionUpdate) defaults() {
+	if _, ok := cu.mutation.PublishedAt(); !ok {
+		v := collection.UpdateDefaultPublishedAt()
+		cu.mutation.SetPublishedAt(v)
+	}
+	if _, ok := cu.mutation.UpdatedAt(); !ok {
+		v := collection.UpdateDefaultUpdatedAt()
+		cu.mutation.SetUpdatedAt(v)
+	}
+}
+
 func (cu *CollectionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -142,6 +168,20 @@ func (cu *CollectionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cu.mutation.PublishedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: collection.FieldPublishedAt,
+		})
+	}
+	if value, ok := cu.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: collection.FieldUpdatedAt,
+		})
 	}
 	if value, ok := cu.mutation.Name(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
@@ -222,6 +262,18 @@ type CollectionUpdateOne struct {
 	mutation *CollectionMutation
 }
 
+// SetPublishedAt sets the "publishedAt" field.
+func (cuo *CollectionUpdateOne) SetPublishedAt(t time.Time) *CollectionUpdateOne {
+	cuo.mutation.SetPublishedAt(t)
+	return cuo
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (cuo *CollectionUpdateOne) SetUpdatedAt(t time.Time) *CollectionUpdateOne {
+	cuo.mutation.SetUpdatedAt(t)
+	return cuo
+}
+
 // SetName sets the "name" field.
 func (cuo *CollectionUpdateOne) SetName(s string) *CollectionUpdateOne {
 	cuo.mutation.SetName(s)
@@ -275,6 +327,7 @@ func (cuo *CollectionUpdateOne) Save(ctx context.Context) (*Collection, error) {
 		err  error
 		node *Collection
 	)
+	cuo.defaults()
 	if len(cuo.hooks) == 0 {
 		node, err = cuo.sqlSave(ctx)
 	} else {
@@ -320,6 +373,18 @@ func (cuo *CollectionUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cuo *CollectionUpdateOne) defaults() {
+	if _, ok := cuo.mutation.PublishedAt(); !ok {
+		v := collection.UpdateDefaultPublishedAt()
+		cuo.mutation.SetPublishedAt(v)
+	}
+	if _, ok := cuo.mutation.UpdatedAt(); !ok {
+		v := collection.UpdateDefaultUpdatedAt()
+		cuo.mutation.SetUpdatedAt(v)
+	}
+}
+
 func (cuo *CollectionUpdateOne) sqlSave(ctx context.Context) (_node *Collection, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -342,6 +407,20 @@ func (cuo *CollectionUpdateOne) sqlSave(ctx context.Context) (_node *Collection,
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cuo.mutation.PublishedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: collection.FieldPublishedAt,
+		})
+	}
+	if value, ok := cuo.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: collection.FieldUpdatedAt,
+		})
 	}
 	if value, ok := cuo.mutation.Name(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{

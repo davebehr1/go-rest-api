@@ -2,11 +2,19 @@
 
 package book
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the book type in the database.
 	Label = "book"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldPublishedAt holds the string denoting the publishedat field in the database.
+	FieldPublishedAt = "published_at"
+	// FieldUpdatedAt holds the string denoting the updatedat field in the database.
+	FieldUpdatedAt = "updated_at"
 	// FieldAuthor holds the string denoting the author field in the database.
 	FieldAuthor = "author"
 	// FieldDescription holds the string denoting the description field in the database.
@@ -29,6 +37,8 @@ const (
 // Columns holds all SQL columns for book fields.
 var Columns = []string{
 	FieldID,
+	FieldPublishedAt,
+	FieldUpdatedAt,
 	FieldAuthor,
 	FieldDescription,
 	FieldTitle,
@@ -54,3 +64,14 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultPublishedAt holds the default value on creation for the "publishedAt" field.
+	DefaultPublishedAt func() time.Time
+	// UpdateDefaultPublishedAt holds the default value on update for the "publishedAt" field.
+	UpdateDefaultPublishedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updatedAt" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updatedAt" field.
+	UpdateDefaultUpdatedAt func() time.Time
+)

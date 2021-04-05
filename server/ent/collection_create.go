@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"lxdAssessmentServer/ent/book"
 	"lxdAssessmentServer/ent/collection"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -18,6 +19,34 @@ type CollectionCreate struct {
 	config
 	mutation *CollectionMutation
 	hooks    []Hook
+}
+
+// SetPublishedAt sets the "publishedAt" field.
+func (cc *CollectionCreate) SetPublishedAt(t time.Time) *CollectionCreate {
+	cc.mutation.SetPublishedAt(t)
+	return cc
+}
+
+// SetNillablePublishedAt sets the "publishedAt" field if the given value is not nil.
+func (cc *CollectionCreate) SetNillablePublishedAt(t *time.Time) *CollectionCreate {
+	if t != nil {
+		cc.SetPublishedAt(*t)
+	}
+	return cc
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (cc *CollectionCreate) SetUpdatedAt(t time.Time) *CollectionCreate {
+	cc.mutation.SetUpdatedAt(t)
+	return cc
+}
+
+// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
+func (cc *CollectionCreate) SetNillableUpdatedAt(t *time.Time) *CollectionCreate {
+	if t != nil {
+		cc.SetUpdatedAt(*t)
+	}
+	return cc
 }
 
 // SetName sets the "name" field.
@@ -52,6 +81,7 @@ func (cc *CollectionCreate) Save(ctx context.Context) (*Collection, error) {
 		err  error
 		node *Collection
 	)
+	cc.defaults()
 	if len(cc.hooks) == 0 {
 		if err = cc.check(); err != nil {
 			return nil, err
@@ -90,8 +120,26 @@ func (cc *CollectionCreate) SaveX(ctx context.Context) *Collection {
 	return v
 }
 
+// defaults sets the default values of the builder before save.
+func (cc *CollectionCreate) defaults() {
+	if _, ok := cc.mutation.PublishedAt(); !ok {
+		v := collection.DefaultPublishedAt()
+		cc.mutation.SetPublishedAt(v)
+	}
+	if _, ok := cc.mutation.UpdatedAt(); !ok {
+		v := collection.DefaultUpdatedAt()
+		cc.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (cc *CollectionCreate) check() error {
+	if _, ok := cc.mutation.PublishedAt(); !ok {
+		return &ValidationError{Name: "publishedAt", err: errors.New("ent: missing required field \"publishedAt\"")}
+	}
+	if _, ok := cc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updatedAt", err: errors.New("ent: missing required field \"updatedAt\"")}
+	}
 	if _, ok := cc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New("ent: missing required field \"name\"")}
 	}
@@ -122,6 +170,22 @@ func (cc *CollectionCreate) createSpec() (*Collection, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := cc.mutation.PublishedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: collection.FieldPublishedAt,
+		})
+		_node.PublishedAt = value
+	}
+	if value, ok := cc.mutation.UpdatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: collection.FieldUpdatedAt,
+		})
+		_node.UpdatedAt = value
+	}
 	if value, ok := cc.mutation.Name(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -166,6 +230,7 @@ func (ccb *CollectionCreateBulk) Save(ctx context.Context) ([]*Collection, error
 	for i := range ccb.builders {
 		func(i int, root context.Context) {
 			builder := ccb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CollectionMutation)
 				if !ok {

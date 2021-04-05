@@ -7,6 +7,7 @@ import (
 	"lxdAssessmentServer/ent/book"
 	"lxdAssessmentServer/ent/collection"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -16,6 +17,10 @@ type Book struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// PublishedAt holds the value of the "publishedAt" field.
+	PublishedAt time.Time `json:"publishedAt,omitempty"`
+	// UpdatedAt holds the value of the "updatedAt" field.
+	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 	// Author holds the value of the "author" field.
 	Author string `json:"author,omitempty"`
 	// Description holds the value of the "description" field.
@@ -60,6 +65,8 @@ func (*Book) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = &sql.NullInt64{}
 		case book.FieldAuthor, book.FieldDescription, book.FieldTitle:
 			values[i] = &sql.NullString{}
+		case book.FieldPublishedAt, book.FieldUpdatedAt:
+			values[i] = &sql.NullTime{}
 		case book.ForeignKeys[0]: // collection_books
 			values[i] = &sql.NullInt64{}
 		default:
@@ -83,6 +90,18 @@ func (b *Book) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			b.ID = int(value.Int64)
+		case book.FieldPublishedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field publishedAt", values[i])
+			} else if value.Valid {
+				b.PublishedAt = value.Time
+			}
+		case book.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
+			} else if value.Valid {
+				b.UpdatedAt = value.Time
+			}
 		case book.FieldAuthor:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field author", values[i])
@@ -141,6 +160,10 @@ func (b *Book) String() string {
 	var builder strings.Builder
 	builder.WriteString("Book(")
 	builder.WriteString(fmt.Sprintf("id=%v", b.ID))
+	builder.WriteString(", publishedAt=")
+	builder.WriteString(b.PublishedAt.Format(time.ANSIC))
+	builder.WriteString(", updatedAt=")
+	builder.WriteString(b.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", author=")
 	builder.WriteString(b.Author)
 	builder.WriteString(", description=")

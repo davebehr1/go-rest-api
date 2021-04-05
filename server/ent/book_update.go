@@ -8,6 +8,7 @@ import (
 	"lxdAssessmentServer/ent/book"
 	"lxdAssessmentServer/ent/collection"
 	"lxdAssessmentServer/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -24,6 +25,18 @@ type BookUpdate struct {
 // Where adds a new predicate for the BookUpdate builder.
 func (bu *BookUpdate) Where(ps ...predicate.Book) *BookUpdate {
 	bu.mutation.predicates = append(bu.mutation.predicates, ps...)
+	return bu
+}
+
+// SetPublishedAt sets the "publishedAt" field.
+func (bu *BookUpdate) SetPublishedAt(t time.Time) *BookUpdate {
+	bu.mutation.SetPublishedAt(t)
+	return bu
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (bu *BookUpdate) SetUpdatedAt(t time.Time) *BookUpdate {
+	bu.mutation.SetUpdatedAt(t)
 	return bu
 }
 
@@ -81,6 +94,7 @@ func (bu *BookUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
+	bu.defaults()
 	if len(bu.hooks) == 0 {
 		affected, err = bu.sqlSave(ctx)
 	} else {
@@ -126,6 +140,18 @@ func (bu *BookUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (bu *BookUpdate) defaults() {
+	if _, ok := bu.mutation.PublishedAt(); !ok {
+		v := book.UpdateDefaultPublishedAt()
+		bu.mutation.SetPublishedAt(v)
+	}
+	if _, ok := bu.mutation.UpdatedAt(); !ok {
+		v := book.UpdateDefaultUpdatedAt()
+		bu.mutation.SetUpdatedAt(v)
+	}
+}
+
 func (bu *BookUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -143,6 +169,20 @@ func (bu *BookUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := bu.mutation.PublishedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: book.FieldPublishedAt,
+		})
+	}
+	if value, ok := bu.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: book.FieldUpdatedAt,
+		})
 	}
 	if value, ok := bu.mutation.Author(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
@@ -218,6 +258,18 @@ type BookUpdateOne struct {
 	mutation *BookMutation
 }
 
+// SetPublishedAt sets the "publishedAt" field.
+func (buo *BookUpdateOne) SetPublishedAt(t time.Time) *BookUpdateOne {
+	buo.mutation.SetPublishedAt(t)
+	return buo
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (buo *BookUpdateOne) SetUpdatedAt(t time.Time) *BookUpdateOne {
+	buo.mutation.SetUpdatedAt(t)
+	return buo
+}
+
 // SetAuthor sets the "author" field.
 func (buo *BookUpdateOne) SetAuthor(s string) *BookUpdateOne {
 	buo.mutation.SetAuthor(s)
@@ -272,6 +324,7 @@ func (buo *BookUpdateOne) Save(ctx context.Context) (*Book, error) {
 		err  error
 		node *Book
 	)
+	buo.defaults()
 	if len(buo.hooks) == 0 {
 		node, err = buo.sqlSave(ctx)
 	} else {
@@ -317,6 +370,18 @@ func (buo *BookUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (buo *BookUpdateOne) defaults() {
+	if _, ok := buo.mutation.PublishedAt(); !ok {
+		v := book.UpdateDefaultPublishedAt()
+		buo.mutation.SetPublishedAt(v)
+	}
+	if _, ok := buo.mutation.UpdatedAt(); !ok {
+		v := book.UpdateDefaultUpdatedAt()
+		buo.mutation.SetUpdatedAt(v)
+	}
+}
+
 func (buo *BookUpdateOne) sqlSave(ctx context.Context) (_node *Book, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -339,6 +404,20 @@ func (buo *BookUpdateOne) sqlSave(ctx context.Context) (_node *Book, err error) 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := buo.mutation.PublishedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: book.FieldPublishedAt,
+		})
+	}
+	if value, ok := buo.mutation.UpdatedAt(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: book.FieldUpdatedAt,
+		})
 	}
 	if value, ok := buo.mutation.Author(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{

@@ -11,6 +11,8 @@ var (
 	// BooksColumns holds the columns for the "books" table.
 	BooksColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "published_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "author", Type: field.TypeString},
 		{Name: "description", Type: field.TypeString},
 		{Name: "title", Type: field.TypeString},
@@ -24,7 +26,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "books_collections_books",
-				Columns:    []*schema.Column{BooksColumns[4]},
+				Columns:    []*schema.Column{BooksColumns[6]},
 				RefColumns: []*schema.Column{CollectionsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -33,6 +35,8 @@ var (
 	// CollectionsColumns holds the columns for the "collections" table.
 	CollectionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "published_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString},
 	}
 	// CollectionsTable holds the schema information for the "collections" table.

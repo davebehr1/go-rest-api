@@ -2,11 +2,19 @@
 
 package collection
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the collection type in the database.
 	Label = "collection"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldPublishedAt holds the string denoting the publishedat field in the database.
+	FieldPublishedAt = "published_at"
+	// FieldUpdatedAt holds the string denoting the updatedat field in the database.
+	FieldUpdatedAt = "updated_at"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// EdgeBooks holds the string denoting the books edge name in mutations.
@@ -25,6 +33,8 @@ const (
 // Columns holds all SQL columns for collection fields.
 var Columns = []string{
 	FieldID,
+	FieldPublishedAt,
+	FieldUpdatedAt,
 	FieldName,
 }
 
@@ -37,3 +47,14 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultPublishedAt holds the default value on creation for the "publishedAt" field.
+	DefaultPublishedAt func() time.Time
+	// UpdateDefaultPublishedAt holds the default value on update for the "publishedAt" field.
+	UpdateDefaultPublishedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updatedAt" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updatedAt" field.
+	UpdateDefaultUpdatedAt func() time.Time
+)

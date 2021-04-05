@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"lxdAssessmentServer/ent/book"
 	"lxdAssessmentServer/ent/collection"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -18,6 +19,34 @@ type BookCreate struct {
 	config
 	mutation *BookMutation
 	hooks    []Hook
+}
+
+// SetPublishedAt sets the "publishedAt" field.
+func (bc *BookCreate) SetPublishedAt(t time.Time) *BookCreate {
+	bc.mutation.SetPublishedAt(t)
+	return bc
+}
+
+// SetNillablePublishedAt sets the "publishedAt" field if the given value is not nil.
+func (bc *BookCreate) SetNillablePublishedAt(t *time.Time) *BookCreate {
+	if t != nil {
+		bc.SetPublishedAt(*t)
+	}
+	return bc
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (bc *BookCreate) SetUpdatedAt(t time.Time) *BookCreate {
+	bc.mutation.SetUpdatedAt(t)
+	return bc
+}
+
+// SetNillableUpdatedAt sets the "updatedAt" field if the given value is not nil.
+func (bc *BookCreate) SetNillableUpdatedAt(t *time.Time) *BookCreate {
+	if t != nil {
+		bc.SetUpdatedAt(*t)
+	}
+	return bc
 }
 
 // SetAuthor sets the "author" field.
@@ -68,6 +97,7 @@ func (bc *BookCreate) Save(ctx context.Context) (*Book, error) {
 		err  error
 		node *Book
 	)
+	bc.defaults()
 	if len(bc.hooks) == 0 {
 		if err = bc.check(); err != nil {
 			return nil, err
@@ -106,8 +136,26 @@ func (bc *BookCreate) SaveX(ctx context.Context) *Book {
 	return v
 }
 
+// defaults sets the default values of the builder before save.
+func (bc *BookCreate) defaults() {
+	if _, ok := bc.mutation.PublishedAt(); !ok {
+		v := book.DefaultPublishedAt()
+		bc.mutation.SetPublishedAt(v)
+	}
+	if _, ok := bc.mutation.UpdatedAt(); !ok {
+		v := book.DefaultUpdatedAt()
+		bc.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (bc *BookCreate) check() error {
+	if _, ok := bc.mutation.PublishedAt(); !ok {
+		return &ValidationError{Name: "publishedAt", err: errors.New("ent: missing required field \"publishedAt\"")}
+	}
+	if _, ok := bc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updatedAt", err: errors.New("ent: missing required field \"updatedAt\"")}
+	}
 	if _, ok := bc.mutation.Author(); !ok {
 		return &ValidationError{Name: "author", err: errors.New("ent: missing required field \"author\"")}
 	}
@@ -144,6 +192,22 @@ func (bc *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
+	if value, ok := bc.mutation.PublishedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: book.FieldPublishedAt,
+		})
+		_node.PublishedAt = value
+	}
+	if value, ok := bc.mutation.UpdatedAt(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: book.FieldUpdatedAt,
+		})
+		_node.UpdatedAt = value
+	}
 	if value, ok := bc.mutation.Author(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -205,6 +269,7 @@ func (bcb *BookCreateBulk) Save(ctx context.Context) ([]*Book, error) {
 	for i := range bcb.builders {
 		func(i int, root context.Context) {
 			builder := bcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*BookMutation)
 				if !ok {

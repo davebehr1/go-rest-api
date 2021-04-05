@@ -11,6 +11,12 @@ type Collection struct {
 	ent.Schema
 }
 
+func (Collection) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		TimeMixin{},
+	}
+}
+
 // Fields of the Collection.
 func (Collection) Fields() []ent.Field {
 	return []ent.Field{

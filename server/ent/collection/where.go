@@ -4,6 +4,7 @@ package collection
 
 import (
 	"lxdAssessmentServer/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -92,10 +93,176 @@ func IDLTE(id int) predicate.Collection {
 	})
 }
 
+// PublishedAt applies equality check predicate on the "publishedAt" field. It's identical to PublishedAtEQ.
+func PublishedAt(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPublishedAt), v))
+	})
+}
+
+// UpdatedAt applies equality check predicate on the "updatedAt" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
+	})
+}
+
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
 func Name(v string) predicate.Collection {
 	return predicate.Collection(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldName), v))
+	})
+}
+
+// PublishedAtEQ applies the EQ predicate on the "publishedAt" field.
+func PublishedAtEQ(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPublishedAt), v))
+	})
+}
+
+// PublishedAtNEQ applies the NEQ predicate on the "publishedAt" field.
+func PublishedAtNEQ(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPublishedAt), v))
+	})
+}
+
+// PublishedAtIn applies the In predicate on the "publishedAt" field.
+func PublishedAtIn(vs ...time.Time) predicate.Collection {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Collection(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldPublishedAt), v...))
+	})
+}
+
+// PublishedAtNotIn applies the NotIn predicate on the "publishedAt" field.
+func PublishedAtNotIn(vs ...time.Time) predicate.Collection {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Collection(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldPublishedAt), v...))
+	})
+}
+
+// PublishedAtGT applies the GT predicate on the "publishedAt" field.
+func PublishedAtGT(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldPublishedAt), v))
+	})
+}
+
+// PublishedAtGTE applies the GTE predicate on the "publishedAt" field.
+func PublishedAtGTE(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldPublishedAt), v))
+	})
+}
+
+// PublishedAtLT applies the LT predicate on the "publishedAt" field.
+func PublishedAtLT(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldPublishedAt), v))
+	})
+}
+
+// PublishedAtLTE applies the LTE predicate on the "publishedAt" field.
+func PublishedAtLTE(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldPublishedAt), v))
+	})
+}
+
+// UpdatedAtEQ applies the EQ predicate on the "updatedAt" field.
+func UpdatedAtEQ(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// UpdatedAtNEQ applies the NEQ predicate on the "updatedAt" field.
+func UpdatedAtNEQ(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// UpdatedAtIn applies the In predicate on the "updatedAt" field.
+func UpdatedAtIn(vs ...time.Time) predicate.Collection {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Collection(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldUpdatedAt), v...))
+	})
+}
+
+// UpdatedAtNotIn applies the NotIn predicate on the "updatedAt" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.Collection {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Collection(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldUpdatedAt), v...))
+	})
+}
+
+// UpdatedAtGT applies the GT predicate on the "updatedAt" field.
+func UpdatedAtGT(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// UpdatedAtGTE applies the GTE predicate on the "updatedAt" field.
+func UpdatedAtGTE(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// UpdatedAtLT applies the LT predicate on the "updatedAt" field.
+func UpdatedAtLT(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// UpdatedAtLTE applies the LTE predicate on the "updatedAt" field.
+func UpdatedAtLTE(v time.Time) predicate.Collection {
+	return predicate.Collection(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldUpdatedAt), v))
 	})
 }
 

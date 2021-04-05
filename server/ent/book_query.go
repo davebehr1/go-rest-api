@@ -283,12 +283,12 @@ func (bq *BookQuery) WithCollection(opts ...func(*CollectionQuery)) *BookQuery {
 // Example:
 //
 //	var v []struct {
-//		Author string `json:"author,omitempty"`
+//		PublishedAt time.Time `json:"publishedAt,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Book.Query().
-//		GroupBy(book.FieldAuthor).
+//		GroupBy(book.FieldPublishedAt).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 //
@@ -310,11 +310,11 @@ func (bq *BookQuery) GroupBy(field string, fields ...string) *BookGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Author string `json:"author,omitempty"`
+//		PublishedAt time.Time `json:"publishedAt,omitempty"`
 //	}
 //
 //	client.Book.Query().
-//		Select(book.FieldAuthor).
+//		Select(book.FieldPublishedAt).
 //		Scan(ctx, &v)
 //
 func (bq *BookQuery) Select(field string, fields ...string) *BookSelect {

@@ -2,8 +2,49 @@
 
 package ent
 
+import (
+	"lxdAssessmentServer/ent/book"
+	"lxdAssessmentServer/ent/collection"
+	"lxdAssessmentServer/ent/schema"
+	"time"
+)
+
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	bookMixin := schema.Book{}.Mixin()
+	bookMixinFields0 := bookMixin[0].Fields()
+	_ = bookMixinFields0
+	bookFields := schema.Book{}.Fields()
+	_ = bookFields
+	// bookDescPublishedAt is the schema descriptor for publishedAt field.
+	bookDescPublishedAt := bookMixinFields0[0].Descriptor()
+	// book.DefaultPublishedAt holds the default value on creation for the publishedAt field.
+	book.DefaultPublishedAt = bookDescPublishedAt.Default.(func() time.Time)
+	// book.UpdateDefaultPublishedAt holds the default value on update for the publishedAt field.
+	book.UpdateDefaultPublishedAt = bookDescPublishedAt.UpdateDefault.(func() time.Time)
+	// bookDescUpdatedAt is the schema descriptor for updatedAt field.
+	bookDescUpdatedAt := bookMixinFields0[1].Descriptor()
+	// book.DefaultUpdatedAt holds the default value on creation for the updatedAt field.
+	book.DefaultUpdatedAt = bookDescUpdatedAt.Default.(func() time.Time)
+	// book.UpdateDefaultUpdatedAt holds the default value on update for the updatedAt field.
+	book.UpdateDefaultUpdatedAt = bookDescUpdatedAt.UpdateDefault.(func() time.Time)
+	collectionMixin := schema.Collection{}.Mixin()
+	collectionMixinFields0 := collectionMixin[0].Fields()
+	_ = collectionMixinFields0
+	collectionFields := schema.Collection{}.Fields()
+	_ = collectionFields
+	// collectionDescPublishedAt is the schema descriptor for publishedAt field.
+	collectionDescPublishedAt := collectionMixinFields0[0].Descriptor()
+	// collection.DefaultPublishedAt holds the default value on creation for the publishedAt field.
+	collection.DefaultPublishedAt = collectionDescPublishedAt.Default.(func() time.Time)
+	// collection.UpdateDefaultPublishedAt holds the default value on update for the publishedAt field.
+	collection.UpdateDefaultPublishedAt = collectionDescPublishedAt.UpdateDefault.(func() time.Time)
+	// collectionDescUpdatedAt is the schema descriptor for updatedAt field.
+	collectionDescUpdatedAt := collectionMixinFields0[1].Descriptor()
+	// collection.DefaultUpdatedAt holds the default value on creation for the updatedAt field.
+	collection.DefaultUpdatedAt = collectionDescUpdatedAt.Default.(func() time.Time)
+	// collection.UpdateDefaultUpdatedAt holds the default value on update for the updatedAt field.
+	collection.UpdateDefaultUpdatedAt = collectionDescUpdatedAt.UpdateDefault.(func() time.Time)
 }

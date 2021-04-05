@@ -9,6 +9,7 @@ import (
 	"lxdAssessmentServer/ent/collection"
 	"lxdAssessmentServer/ent/predicate"
 	"sync"
+	"time"
 
 	"entgo.io/ent"
 )
@@ -32,6 +33,8 @@ type BookMutation struct {
 	op                Op
 	typ               string
 	id                *int
+	publishedAt       *time.Time
+	updatedAt         *time.Time
 	author            *string
 	description       *string
 	title             *string
@@ -120,6 +123,78 @@ func (m *BookMutation) ID() (id int, exists bool) {
 		return
 	}
 	return *m.id, true
+}
+
+// SetPublishedAt sets the "publishedAt" field.
+func (m *BookMutation) SetPublishedAt(t time.Time) {
+	m.publishedAt = &t
+}
+
+// PublishedAt returns the value of the "publishedAt" field in the mutation.
+func (m *BookMutation) PublishedAt() (r time.Time, exists bool) {
+	v := m.publishedAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPublishedAt returns the old "publishedAt" field's value of the Book entity.
+// If the Book object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BookMutation) OldPublishedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldPublishedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldPublishedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPublishedAt: %w", err)
+	}
+	return oldValue.PublishedAt, nil
+}
+
+// ResetPublishedAt resets all changes to the "publishedAt" field.
+func (m *BookMutation) ResetPublishedAt() {
+	m.publishedAt = nil
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (m *BookMutation) SetUpdatedAt(t time.Time) {
+	m.updatedAt = &t
+}
+
+// UpdatedAt returns the value of the "updatedAt" field in the mutation.
+func (m *BookMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updatedAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updatedAt" field's value of the Book entity.
+// If the Book object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BookMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updatedAt" field.
+func (m *BookMutation) ResetUpdatedAt() {
+	m.updatedAt = nil
 }
 
 // SetAuthor sets the "author" field.
@@ -283,7 +358,13 @@ func (m *BookMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BookMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 5)
+	if m.publishedAt != nil {
+		fields = append(fields, book.FieldPublishedAt)
+	}
+	if m.updatedAt != nil {
+		fields = append(fields, book.FieldUpdatedAt)
+	}
 	if m.author != nil {
 		fields = append(fields, book.FieldAuthor)
 	}
@@ -301,6 +382,10 @@ func (m *BookMutation) Fields() []string {
 // schema.
 func (m *BookMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case book.FieldPublishedAt:
+		return m.PublishedAt()
+	case book.FieldUpdatedAt:
+		return m.UpdatedAt()
 	case book.FieldAuthor:
 		return m.Author()
 	case book.FieldDescription:
@@ -316,6 +401,10 @@ func (m *BookMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *BookMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case book.FieldPublishedAt:
+		return m.OldPublishedAt(ctx)
+	case book.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
 	case book.FieldAuthor:
 		return m.OldAuthor(ctx)
 	case book.FieldDescription:
@@ -331,6 +420,20 @@ func (m *BookMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *BookMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case book.FieldPublishedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPublishedAt(v)
+		return nil
+	case book.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
 	case book.FieldAuthor:
 		v, ok := value.(string)
 		if !ok {
@@ -401,6 +504,12 @@ func (m *BookMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *BookMutation) ResetField(name string) error {
 	switch name {
+	case book.FieldPublishedAt:
+		m.ResetPublishedAt()
+		return nil
+	case book.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
 	case book.FieldAuthor:
 		m.ResetAuthor()
 		return nil
@@ -496,6 +605,8 @@ type CollectionMutation struct {
 	op            Op
 	typ           string
 	id            *int
+	publishedAt   *time.Time
+	updatedAt     *time.Time
 	name          *string
 	clearedFields map[string]struct{}
 	books         map[int]struct{}
@@ -583,6 +694,78 @@ func (m *CollectionMutation) ID() (id int, exists bool) {
 		return
 	}
 	return *m.id, true
+}
+
+// SetPublishedAt sets the "publishedAt" field.
+func (m *CollectionMutation) SetPublishedAt(t time.Time) {
+	m.publishedAt = &t
+}
+
+// PublishedAt returns the value of the "publishedAt" field in the mutation.
+func (m *CollectionMutation) PublishedAt() (r time.Time, exists bool) {
+	v := m.publishedAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPublishedAt returns the old "publishedAt" field's value of the Collection entity.
+// If the Collection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CollectionMutation) OldPublishedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldPublishedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldPublishedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPublishedAt: %w", err)
+	}
+	return oldValue.PublishedAt, nil
+}
+
+// ResetPublishedAt resets all changes to the "publishedAt" field.
+func (m *CollectionMutation) ResetPublishedAt() {
+	m.publishedAt = nil
+}
+
+// SetUpdatedAt sets the "updatedAt" field.
+func (m *CollectionMutation) SetUpdatedAt(t time.Time) {
+	m.updatedAt = &t
+}
+
+// UpdatedAt returns the value of the "updatedAt" field in the mutation.
+func (m *CollectionMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updatedAt
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updatedAt" field's value of the Collection entity.
+// If the Collection object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CollectionMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updatedAt" field.
+func (m *CollectionMutation) ResetUpdatedAt() {
+	m.updatedAt = nil
 }
 
 // SetName sets the "name" field.
@@ -688,7 +871,13 @@ func (m *CollectionMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CollectionMutation) Fields() []string {
-	fields := make([]string, 0, 1)
+	fields := make([]string, 0, 3)
+	if m.publishedAt != nil {
+		fields = append(fields, collection.FieldPublishedAt)
+	}
+	if m.updatedAt != nil {
+		fields = append(fields, collection.FieldUpdatedAt)
+	}
 	if m.name != nil {
 		fields = append(fields, collection.FieldName)
 	}
@@ -700,6 +889,10 @@ func (m *CollectionMutation) Fields() []string {
 // schema.
 func (m *CollectionMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case collection.FieldPublishedAt:
+		return m.PublishedAt()
+	case collection.FieldUpdatedAt:
+		return m.UpdatedAt()
 	case collection.FieldName:
 		return m.Name()
 	}
@@ -711,6 +904,10 @@ func (m *CollectionMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *CollectionMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case collection.FieldPublishedAt:
+		return m.OldPublishedAt(ctx)
+	case collection.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
 	case collection.FieldName:
 		return m.OldName(ctx)
 	}
@@ -722,6 +919,20 @@ func (m *CollectionMutation) OldField(ctx context.Context, name string) (ent.Val
 // type.
 func (m *CollectionMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case collection.FieldPublishedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPublishedAt(v)
+		return nil
+	case collection.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
 	case collection.FieldName:
 		v, ok := value.(string)
 		if !ok {
@@ -778,6 +989,12 @@ func (m *CollectionMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *CollectionMutation) ResetField(name string) error {
 	switch name {
+	case collection.FieldPublishedAt:
+		m.ResetPublishedAt()
+		return nil
+	case collection.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
 	case collection.FieldName:
 		m.ResetName()
 		return nil

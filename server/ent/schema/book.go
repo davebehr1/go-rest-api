@@ -11,6 +11,12 @@ type Book struct {
 	ent.Schema
 }
 
+func (Book) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		TimeMixin{},
+	}
+}
+
 // Fields of the Book.
 func (Book) Fields() []ent.Field {
 	return []ent.Field{

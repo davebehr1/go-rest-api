@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"lxdAssessmentServer/ent/collection"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -15,6 +16,10 @@ type Collection struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// PublishedAt holds the value of the "publishedAt" field.
+	PublishedAt time.Time `json:"publishedAt,omitempty"`
+	// UpdatedAt holds the value of the "updatedAt" field.
+	UpdatedAt time.Time `json:"updatedAt,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -49,6 +54,8 @@ func (*Collection) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = &sql.NullInt64{}
 		case collection.FieldName:
 			values[i] = &sql.NullString{}
+		case collection.FieldPublishedAt, collection.FieldUpdatedAt:
+			values[i] = &sql.NullTime{}
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Collection", columns[i])
 		}
@@ -70,6 +77,18 @@ func (c *Collection) assignValues(columns []string, values []interface{}) error 
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			c.ID = int(value.Int64)
+		case collection.FieldPublishedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field publishedAt", values[i])
+			} else if value.Valid {
+				c.PublishedAt = value.Time
+			}
+		case collection.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updatedAt", values[i])
+			} else if value.Valid {
+				c.UpdatedAt = value.Time
+			}
 		case collection.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
@@ -109,6 +128,10 @@ func (c *Collection) String() string {
 	var builder strings.Builder
 	builder.WriteString("Collection(")
 	builder.WriteString(fmt.Sprintf("id=%v", c.ID))
+	builder.WriteString(", publishedAt=")
+	builder.WriteString(c.PublishedAt.Format(time.ANSIC))
+	builder.WriteString(", updatedAt=")
+	builder.WriteString(c.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", name=")
 	builder.WriteString(c.Name)
 	builder.WriteByte(')')
