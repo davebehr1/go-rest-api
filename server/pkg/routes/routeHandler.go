@@ -19,9 +19,11 @@ func RouteHandlers(client *ent.Client, db *sql.DB) *mux.Router {
 	s.HandleFunc("/test", h.Test).Methods("GET")
 	s.HandleFunc("/book", h.CreateBook).Methods("POST")
 	s.HandleFunc("/book", h.DeleteBook).Methods("DELETE")
+	s.HandleFunc("/book", h.UpdateBook).Methods("PATCH")
 	s.HandleFunc("/books", h.GetBooks).Methods("GET")
 	s.HandleFunc("/collection", h.CreateCollection).Methods("POST")
 	s.HandleFunc("/collection", h.DeleteCollection).Methods("DELETE")
+	s.HandleFunc("/collection", h.UpdateCollection).Methods("PATCH")
 	s.HandleFunc("/collections", h.GetCollections).Methods("GET")
 	return r
 }

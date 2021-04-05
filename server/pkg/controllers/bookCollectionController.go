@@ -8,6 +8,7 @@ import (
 	"lxdAssessmentServer/ent/collection"
 	"lxdAssessmentServer/pkg"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -71,6 +72,46 @@ func (h *Handler) DeleteBook(w http.ResponseWriter, req *http.Request) {
 	pkg.HttpSuccess(w, http.StatusCreated, "deleted book")
 }
 
+func (h *Handler) UpdateBook(w http.ResponseWriter, req *http.Request) {
+	params := req.URL.Query()
+	bookId := params.Get("id")
+	Id, _ := strconv.Atoi(bookId)
+
+	var p ent.Book
+	decoder := json.NewDecoder(req.Body)
+	decoder.Decode(&p)
+
+	if bookId != "" {
+		bookUpdater := h.entClient.Book.Update().Where(book.IDEQ(Id))
+		if p.Author != "" {
+			bookUpdater.SetAuthor(p.Author)
+		}
+		if p.Description != "" {
+			bookUpdater.SetAuthor(p.Description)
+		}
+		if p.Title != "" {
+			bookUpdater.SetAuthor(p.Title)
+		}
+
+		_, err := bookUpdater.Save(req.Context())
+
+		if err != nil {
+			pkg.HttpError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		book, err := h.entClient.Book.Query().Where(book.IDEQ(Id)).First(req.Context())
+		if err != nil {
+			pkg.HttpError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		pkg.HttpSuccess(w, http.StatusCreated, book)
+	} else {
+		pkg.HttpError(w, http.StatusInternalServerError, "book does not exist")
+	}
+
+}
+
 func (h *Handler) DeleteCollection(w http.ResponseWriter, req *http.Request) {
 	c, _ := h.entClient.Collection.Query().Where(collection.IDEQ(1)).Only(req.Context())
 	if c == nil {
@@ -97,6 +138,34 @@ func (h *Handler) CreateCollection(w http.ResponseWriter, req *http.Request) {
 		pkg.HttpSuccess(w, http.StatusCreated, collection)
 	} else {
 		pkg.HttpError(w, http.StatusInternalServerError, "collection cant be empty")
+	}
+
+}
+
+func (h *Handler) UpdateCollection(w http.ResponseWriter, req *http.Request) {
+	params := req.URL.Query()
+	collectionId := params.Get("id")
+	collectionName := params.Get("name")
+	Id, _ := strconv.Atoi(collectionId)
+	if collectionId != "" {
+		collectionUpdater := h.entClient.Collection.Update().Where(collection.IDEQ(Id))
+
+		if collectionName != "" {
+			collectionUpdater.SetName(collectionName)
+		}
+		_, err := collectionUpdater.Save(req.Context())
+		if err != nil {
+			pkg.HttpError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		collection, err := h.entClient.Collection.Query().Where(collection.IDEQ(Id)).First(req.Context())
+		if err != nil {
+			pkg.HttpError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		pkg.HttpSuccess(w, http.StatusCreated, collection)
+	} else {
+		pkg.HttpError(w, http.StatusInternalServerError, "collection does not exist")
 	}
 
 }
