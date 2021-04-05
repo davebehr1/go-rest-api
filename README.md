@@ -47,14 +47,15 @@
 ## REST API:
  
 ### RETURN VALUES:
-   - standard return
+   - success
    - error
-#### standard return:
+#### success return:
 
 ```js
 {
-    "status_code": 200, // success codes
+    "code": 200, // success codes
     "payload":{}
+    "success":true
 }
 ```
 
@@ -62,24 +63,29 @@
 
 ```js
 {
-    "status_code": 401, // error codes
-    "error": {}  // the error that occured, the client does not have to know about alot of these for security
+    "code": 401, // error codes
+    "errorMessage": {}  // the error that occured, the client does not have to know about alot of these for security
+    "success":false
 }
 ```
 
 
 ### ROUTES:
    - [`/1.0`](###1.0):
+      * [`/1.0/test`](###test):
       * [`/1.0/books`](###books):
-      * [`/1.0/book/{id}`](###booksid):
       * [`/1.0/book`](###book): 
       * [`/1.0/collection`](###collection):
       * [`/1.0/collections`](###collections):
-      * [`/1.0/collection/{id}`](###collectionsId):
 
 
 ### `/1.0`
 #### Version 1 of the api
+
+### `/1.0/test`
+#### GET
+ * Description: test if the api is alive
+ * Return: a string to say if the api is up and running
 
 ### `/1.0/books`
 #### GET
@@ -92,11 +98,10 @@
  * Description: adds book to database
  * Return: returns book that was added to database
 
+#### DELETE
+ * Description: deletes a book from database
+ * Return: returns a success message if deleted else the error is returned
 
-### `/1.0/book/{id}`
-#### GET
- * Description: book with specified id
- * Return: book with specified id
 
 ### `/1.0/collections`
 #### GET
@@ -108,28 +113,27 @@
  * Description: adds collection to database
  * Return: collection that was added to the database
 
-### `/1.0/collection/{id}`
-#### GET
- * Description: collection with specific id and other query parameters
- * Return: a collection with the id and other query parameters
+#### DELETE
+ * Description: deletes a collection from database
+ * Return: returns a success message if deleted else the error is returned
 
 
  ## Database Structure:
 
 ### Book
-| Field       	| data type 	|             	|
-|-------------	|-----------	|-------------	|
-| id          	| int8      	| FOREIGN_KEY 	|
-| author      	| varchar   	|             	|
-| description 	| varchar   	|             	|
-| title       	| varchar   	|             	|
-| createdAt   	| timestamp 	|             	|
-| updatedAt   	| timestamp 	|             	|
+| Field       	   | data type 	|             	|
+|----------------	|-------------	|-------------	|
+| id          	   | int8      	| FOREIGN_KEY 	|
+| author      	   | varchar   	|             	|
+| description 	   | varchar   	|             	|
+| title       	   | varchar   	|             	|
+| publishedAt   	| timestamp 	|             	|
+| updatedAt   	   | timestamp 	|             	|
 
 ### Collection
 | Field     	| data type 	|             	|
 |-----------	|-----------	|-------------	|
 | id        	| int8      	| PRIMARY_KEY 	|
 | name      	| varchar   	|             	|
-| createdAt 	| timestamp 	|             	|
+| publishedAt 	| timestamp 	|             	|
 | updatedAt 	| timestamp 	|             	|
