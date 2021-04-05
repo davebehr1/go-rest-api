@@ -167,12 +167,13 @@
 ### Book
 | Field       	   | data type 	|             	|
 |----------------	|-------------	|-------------	|
-| id          	   | int8      	| FOREIGN_KEY 	|
+| id          	   | int8      	| PRIMARY_KEY 	|
 | author      	   | varchar   	|             	|
 | description 	   | varchar   	|             	|
 | title       	   | varchar   	|             	|
 | publishedAt   	| timestamp 	|             	|
 | updatedAt   	   | timestamp 	|             	|
+| collection_books| int8         | FOREIGN_KEY  |
 
 ### Collection
 | Field     	| data type 	|             	|
