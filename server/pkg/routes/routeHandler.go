@@ -23,7 +23,6 @@ func RouteHandlers(client *ent.Client, db *sql.DB) *mux.Router {
 	s.HandleFunc("/collection", h.CreateCollection).Methods("POST")
 	s.HandleFunc("/collection", h.DeleteCollection).Methods("DELETE")
 	s.HandleFunc("/collections", h.GetCollections).Methods("GET")
-
 	return r
 }
 

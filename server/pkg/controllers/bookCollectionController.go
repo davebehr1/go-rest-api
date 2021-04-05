@@ -8,6 +8,7 @@ import (
 	"lxdAssessmentServer/ent/collection"
 	"lxdAssessmentServer/pkg"
 	"net/http"
+	"time"
 )
 
 type Book struct {
@@ -104,6 +105,10 @@ func (h *Handler) GetBooks(w http.ResponseWriter, req *http.Request) {
 	params := req.URL.Query()
 	author := params.Get("author")
 	title := params.Get("title")
+	fromDate := params.Get("from_date")
+	toDate := params.Get("to_date")
+	from, _ := time.Parse("2010-10-13", fromDate)
+	to, _ := time.Parse("2010-10-13", toDate)
 
 	booksBuilder := h.entClient.Book.Query()
 	if author != "" {
@@ -111,6 +116,12 @@ func (h *Handler) GetBooks(w http.ResponseWriter, req *http.Request) {
 	}
 	if title != "" {
 		booksBuilder.Where(book.TitleEQ(title))
+	}
+	if fromDate != "" {
+		booksBuilder.Where(book.PublishedAtGTE(from))
+	}
+	if toDate != "" {
+		booksBuilder.Where(book.PublishedAtLTE(to))
 	}
 
 	books, err := booksBuilder.WithCollection().All(req.Context())

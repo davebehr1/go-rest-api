@@ -28,6 +28,8 @@ var booksCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		author, _ := cmd.Flags().GetString("author")
 		title, _ := cmd.Flags().GetString("title")
+		fromDate, _ := cmd.Flags().GetString("from_date")
+		toDate, _ := cmd.Flags().GetString("to_date")
 
 		client := &http.Client{}
 		req, _ := http.NewRequest("GET", "http://localhost:8080/1.0/books", nil)
@@ -39,6 +41,12 @@ var booksCmd = &cobra.Command{
 		}
 		if title != "" {
 			q.Add("title", title)
+		}
+		if fromDate != "" {
+			q.Add("fromDate", fromDate)
+		}
+		if toDate != "" {
+			q.Add("toDate", toDate)
 		}
 
 		req.URL.RawQuery = q.Encode()
@@ -75,4 +83,6 @@ func init() {
 	listCmd.AddCommand(booksCmd)
 	booksCmd.Flags().String("author", "", "author of book")
 	booksCmd.Flags().String("title", "", "title of book")
+	booksCmd.Flags().String("from_date", "", "published from this date")
+	booksCmd.Flags().String("to_date", "", "published to this date")
 }
