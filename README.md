@@ -34,8 +34,35 @@
         *   Example:
             *   Go run main.go create book --book=’{“title”:”harryPotter”,”author”:”J.K Rowling”, “description”:”book about magic”}’ --collection=fiction
 *   ### Update:
-    *   Collection
+    *   Collection:
+          *   Flags:
+            *   -- id /required
+            *   --name / required
+            *   --help / help for command
+        *   Example:
+            *   Go run main.go update collection --id=1 --name=Fiction 
     *   Book
+          *   Flags:
+            *   -- id /required
+            *   --book / required
+            *   --help / help for command
+        *   Example:
+            *  Go run main.go update book --id=1 --book=’{“title”:”harryPotter”,”author”:”J.K Rowling”, “description”:”book about magic”}’ 
+    
+*   ### Delete:
+    *   Collection:
+         *   Flags:
+            *   --id / required
+            *   --help / help for command
+         *   Example:
+            *   Go run main.go delete collection --id=1
+    *   Book:
+          *   Flags:
+            *   --id / required
+            *   --help / help for command
+          *    Example:
+            *   Go run main.go delete book --id=1
+    
 *   ### Help
 *   ### List:
     *   Books:
