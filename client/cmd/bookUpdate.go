@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"lxdAssessmentClient/pkg"
 	"net/http"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -28,6 +29,11 @@ var bookUpdateCmd = &cobra.Command{
 			fmt.Print(err.Error())
 		}
 
+		bookId, err := cmd.Flags().GetInt("id")
+		if err != nil {
+			fmt.Print(err.Error())
+		}
+
 		client := &http.Client{}
 		req, _ := http.NewRequest("PATCH", "http://localhost:8080/1.0/book", bytes.NewBuffer([]byte(bookJson)))
 		req.Header.Add("Content-Type", "application/json")
@@ -35,6 +41,10 @@ var bookUpdateCmd = &cobra.Command{
 		q := req.URL.Query()
 		if collection != "" {
 			q.Add("collection", collection)
+		}
+		if bookId != -1 {
+			Id := strconv.Itoa(bookId)
+			q.Add("id", Id)
 		}
 		req.URL.RawQuery = q.Encode()
 
@@ -57,4 +67,9 @@ var bookUpdateCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(bookUpdateCmd)
 	updateCmd.AddCommand(bookUpdateCmd)
+	bookCreateCmd.Flags().Int("id", -1, "id of book you want to update")
+	bookCreateCmd.Flags().String("book", "", "{title:harry potter,author:jk,description:fantasy}")
+	bookCreateCmd.Flags().String("collection", "", "fantasy")
+	bookCreateCmd.MarkFlagRequired("book")
+	bookCreateCmd.MarkFlagRequired("id")
 }

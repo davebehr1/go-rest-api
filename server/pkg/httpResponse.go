@@ -5,29 +5,23 @@ import (
 	"net/http"
 )
 
-type Success struct {
+type Response struct {
 	Code    int
 	Payload interface{}
 	Success bool
 }
 
-type Error struct {
-	Code         int
-	ErrorMessage string
-	Success      bool
-}
-
 func HttpError(w http.ResponseWriter, code int, err string) {
-	errorPayload := Error{
-		Code:         code,
-		ErrorMessage: err,
-		Success:      false,
+	errorPayload := Response{
+		Code:    code,
+		Payload: err,
+		Success: false,
 	}
 	json.NewEncoder(w).Encode(errorPayload)
 }
 
 func HttpSuccess(w http.ResponseWriter, code int, payload interface{}) {
-	successPayload := Success{
+	successPayload := Response{
 		Code:    code,
 		Payload: payload,
 		Success: true,
