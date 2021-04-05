@@ -54,10 +54,9 @@ var collectionUpdateCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(collectionUpdateCmd)
 	updateCmd.AddCommand(collectionUpdateCmd)
 	collectionUpdateCmd.Flags().Int("id", -1, "id of collection to update")
-	collectionCreateCmd.Flags().String("name", "", "fantasy")
-	collectionCreateCmd.MarkFlagRequired("id")
-	collectionCreateCmd.MarkFlagRequired("name")
+	collectionUpdateCmd.Flags().String("name", "", "fantasy")
+	collectionUpdateCmd.MarkFlagRequired("id")
+	collectionUpdateCmd.MarkFlagRequired("name")
 }

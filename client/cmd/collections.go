@@ -13,8 +13,9 @@ import (
 )
 
 type CollectionResponse struct {
-	ID   int
-	Name string
+	ID         int
+	Name       string
+	BookAmount int
 }
 
 // collectionsCmd represents the collections command
@@ -53,10 +54,10 @@ var collectionsCmd = &cobra.Command{
 
 		t := table.NewWriter()
 		t.SetOutputMirror(os.Stdout)
-		t.AppendHeader(table.Row{"id", "name"})
+		t.AppendHeader(table.Row{"id", "name", "amount of books"})
 		for _, collection := range collections {
 			t.AppendRows([]table.Row{
-				{collection.ID, collection.Name},
+				{collection.ID, collection.Name, collection.BookAmount},
 			})
 		}
 		t.Render()

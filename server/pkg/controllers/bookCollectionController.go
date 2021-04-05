@@ -20,6 +20,12 @@ type Book struct {
 	Collection  string
 }
 
+type Collection struct {
+	ID         int
+	Name       string
+	BookAmount int
+}
+
 type Handler struct {
 	entClient *ent.Client
 	db        *sql.DB
@@ -247,12 +253,24 @@ func (h *Handler) GetCollections(w http.ResponseWriter, req *http.Request) {
 		collectionBuilder.Where(collection.NameEQ(name))
 	}
 
-	collections, err := collectionBuilder.All(req.Context())
+	collections, err := collectionBuilder.WithBooks().All(req.Context())
 
 	if err != nil {
 		pkg.HttpError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	pkg.HttpSuccess(w, http.StatusOK, collections)
+
+	var collectionPayload []Collection
+
+	for _, collection := range collections {
+		collectionPayload = append(collectionPayload, Collection{
+			ID:         collection.ID,
+			Name:       collection.Name,
+			BookAmount: len(collection.Edges.Books),
+		})
+
+	}
+
+	pkg.HttpSuccess(w, http.StatusOK, collectionPayload)
 
 }

@@ -65,11 +65,9 @@ var bookUpdateCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(bookUpdateCmd)
 	updateCmd.AddCommand(bookUpdateCmd)
-	bookCreateCmd.Flags().Int("id", -1, "id of book you want to update")
-	bookCreateCmd.Flags().String("book", "", "{title:harry potter,author:jk,description:fantasy}")
-	bookCreateCmd.Flags().String("collection", "", "fantasy")
-	bookCreateCmd.MarkFlagRequired("book")
-	bookCreateCmd.MarkFlagRequired("id")
+	bookUpdateCmd.Flags().Int("id", -1, "id of book you want to update")
+	bookUpdateCmd.Flags().String("book", "", "{title:harry potter,author:jk,description:fantasy}")
+	bookUpdateCmd.Flags().String("collection", "", "fantasy")
+	bookUpdateCmd.MarkFlagRequired("id")
 }
