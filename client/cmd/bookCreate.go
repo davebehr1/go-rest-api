@@ -29,8 +29,6 @@ var bookCreateCmd = &cobra.Command{
 		var newBook Book
 		json.Unmarshal([]byte(bookJson), &newBook)
 
-		fmt.Println(newBook)
-
 		collection, err := cmd.Flags().GetString("collection")
 		if err != nil {
 			fmt.Print(err.Error())

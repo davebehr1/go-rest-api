@@ -101,8 +101,19 @@ func (h *Handler) CreateCollection(w http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) GetBooks(w http.ResponseWriter, req *http.Request) {
+	params := req.URL.Query()
+	author := params.Get("author")
+	title := params.Get("title")
 
-	books, err := h.entClient.Book.Query().WithCollection().All(req.Context())
+	booksBuilder := h.entClient.Book.Query()
+	if author != "" {
+		booksBuilder.Where(book.AuthorEQ(author))
+	}
+	if title != "" {
+		booksBuilder.Where(book.TitleEQ(title))
+	}
+
+	books, err := booksBuilder.WithCollection().All(req.Context())
 
 	if err != nil {
 		pkg.HttpError(w, http.StatusInternalServerError, err.Error())

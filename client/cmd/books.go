@@ -26,8 +26,22 @@ var booksCmd = &cobra.Command{
 	Short: "returns a list of books from the books collection api",
 
 	Run: func(cmd *cobra.Command, args []string) {
+		author, _ := cmd.Flags().GetString("author")
+		title, _ := cmd.Flags().GetString("title")
+
 		client := &http.Client{}
 		req, _ := http.NewRequest("GET", "http://localhost:8080/1.0/books", nil)
+		req.Header.Add("Accept", "application/json")
+
+		q := req.URL.Query()
+		if author != "" {
+			q.Add("author", author)
+		}
+		if title != "" {
+			q.Add("title", title)
+		}
+
+		req.URL.RawQuery = q.Encode()
 
 		resp, err := client.Do(req)
 		if err != nil {
@@ -59,4 +73,6 @@ var booksCmd = &cobra.Command{
 
 func init() {
 	listCmd.AddCommand(booksCmd)
+	booksCmd.Flags().String("author", "", "author of book")
+	booksCmd.Flags().String("title", "", "title of book")
 }
