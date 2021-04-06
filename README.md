@@ -171,6 +171,7 @@
 | author      	   | varchar   	|             	|
 | description 	   | varchar   	|             	|
 | title       	   | varchar   	|             	|
+| edition       	| edition   	|             	|
 | publishedAt   	| timestamp 	|             	|
 | updatedAt   	   | timestamp 	|             	|
 | collection_books| int8         | FOREIGN_KEY  |
