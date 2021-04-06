@@ -21,64 +21,66 @@
 
 *   ### Create:
     *   Collection:
-     *   Flags:
-      *   --collection / required
-      *   --help / help for command
-     *   Example:
-      *   Go run main.go create collection --collection=’{“name”:”Fiction”}’
+         *  Flags:
+            * --collection / required
+            * --help / help for command
+                  
+         *   Example:
+               *  Go run main.go create collection --collection=’{“name”:”Fiction”}’
+            
     *   Book
-      *   Flags:
-         *   --book/ required
-         *   --collection / optional
-         *   --help / help for command
+         *   Flags:
+               * --book/ required
+               * --collection / optional
+               * --help / help for command
         *   Example:
-         *   Go run main.go create book --book=’{“title”:”harryPotter”,”author”:”J.K Rowling”, “description”:”book about magic”}’ --collection=fiction
+               * Go run main.go create book --book=’{“title”:”harryPotter”,”author”:”J.K Rowling”, “description”:”book about magic”}’ --collection=fiction
 *   ### Update:
     *   Collection:
-       *   Flags:
-         *   -- id /required
-         *   --name / required
-         *   --help / help for command
+         *   Flags:
+               * -- id /required
+               * --name / required
+               * --help / help for command
         *   Example:
-         *   Go run main.go update collection --id=1 --name=Fiction 
+               * Go run main.go update collection --id=1 --name=Fiction 
     *   Book
-       *   Flags:
-         *   -- id /required
-         *   --book / required
-         *   --help / help for command
-      *   Example:
-         *  Go run main.go update book --id=1 --book=’{“title”:”harryPotter”,”author”:”J.K Rowling”, “description”:”book about magic”}’ 
+         *   Flags:
+               * -- id /required
+               * --book / required
+               * --help / help for command
+         *   Example:
+               *  Go run main.go update book --id=1 --book=’{“title”:”harryPotter”,”author”:”J.K Rowling”, “description”:”book about magic”}’ 
     
 *   ### Delete:
     *   Collection:
-      *   Flags:
-         *   --id / required
-         *   --help / help for command
-      *   Example:
-         *   Go run main.go delete collection --id=1
+         *   Flags:
+               * --id / required
+               * --help / help for command
+         *   Example:
+               * Go run main.go delete collection --id=1
     *   Book:
-       *   Flags:
-         *   --id / required
-         *   --help / help for command
-       *    Example:
-         *   Go run main.go delete book --id=1
+         *   Flags:
+               * --id / required
+               * --help / help for command
+         *    Example:
+               *  Go run main.go delete book --id=1
     
 *   ### Help
 *   ### List:
-    *   Books:
-     *   Flags:
-      *   --author / optional
-      *   --title / optional
-      *   --fromDate / optional
-      *   --toDate  / optional
-     *   Example:
-      *   Go run main.go list books --author=David --title=harry Potter
+     *   Books:
+         *   Flags:
+               * --author / optional
+               * --title / optional
+               * --fromDate / optional
+               * --toDate  / optional
+         *   Example:
+               * Go run main.go list books --author=David --title=harry Potter
     *   Collections:
-     *   Flags:
-      *   --name
-     *   Examples:
-      *   Go run main.go list collections --name=Fiction
-    *   --help
+         *   Flags:
+               * --name
+         *   Examples:
+               * Go run main.go list collections --name=Fiction
+     *   --help
 
 ## REST API:
  
