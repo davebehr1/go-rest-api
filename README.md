@@ -1,5 +1,3 @@
-# lxdAssessment
-
 ## BUILD INSTRUCTIONS:
 
 * cd server:
